@@ -1,37 +1,38 @@
-package com.allan.task.manager.board;
+package com.allan.task.manager.column;
 
-import com.allan.task.manager.column.ColumnModel;
+import com.allan.task.manager.board.BoardModel;
 import com.allan.task.manager.shared.Auditable;
 import com.allan.task.manager.workspace.WorkspaceModel;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "tb_board")
+@Table(name = "tb_column")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BoardModel extends Auditable {
+public class ColumnModel extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false, length = 120)
+    @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(length = 255)
-    private String description;
+    @Column(nullable = false)
+    private Integer position;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_id", nullable = false)
+    private BoardModel board;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workspace_id", nullable = false)
     private WorkspaceModel workspace;
 
-    @OneToMany(mappedBy = "board")
-    private List<ColumnModel> columns;
 }
