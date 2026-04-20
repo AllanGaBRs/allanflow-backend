@@ -2,12 +2,12 @@ package com.allan.task.manager.user;
 
 import com.allan.task.manager.role.RoleModel;
 import com.allan.task.manager.shared.Auditable;
+import com.allan.task.manager.task.TaskModel;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.springframework.scheduling.config.Task;
 import org.springframework.security.core.GrantedAuthority;
 import java.util.Collection;
 import java.util.HashSet;
@@ -43,7 +43,7 @@ public class UserModel extends Auditable implements UserDetails {
     private String password;
 
     @ManyToMany(mappedBy = "assignees")
-    private Set<Task> tasks;
+    private Set<TaskModel> tasks;
 
     @ManyToMany
     @JoinTable(name = "tb_user_role",
