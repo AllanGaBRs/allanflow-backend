@@ -1,12 +1,14 @@
 package com.allan.task.manager.workspace;
 
 import com.allan.task.manager.board.BoardModel;
+import com.allan.task.manager.membership.MembershipModel;
 import com.allan.task.manager.shared.Auditable;
 import com.allan.task.manager.user.UserModel;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -35,4 +37,6 @@ public class WorkspaceModel extends Auditable {
     @OneToMany(mappedBy = "workspace")
     private List<BoardModel> boards;
 
+    @OneToMany(mappedBy = "workspace")
+    private Set<MembershipModel> memberships;
 }

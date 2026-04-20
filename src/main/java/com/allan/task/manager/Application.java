@@ -1,11 +1,8 @@
 package com.allan.task.manager;
 
-import com.allan.task.manager.role.RoleModel;
-import com.allan.task.manager.role.RoleRepository;
 import com.allan.task.manager.user.UserModel;
 import com.allan.task.manager.user.UserRepository;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -27,16 +24,9 @@ public class Application {
     @Bean
     CommandLineRunner run(
             UserRepository userRepository,
-            RoleRepository roleRepository,
             PasswordEncoder passwordEncoder) {
 
         return args -> {
-
-            RoleModel adminRole = roleRepository.findByAuthority("ROLE_ADMIN")
-                    .orElseGet(() -> roleRepository.save(new RoleModel("ROLE_ADMIN")));
-
-            RoleModel userRole = roleRepository.findByAuthority("ROLE_USER")
-                    .orElseGet(() -> roleRepository.save(new RoleModel("ROLE_USER")));
 
             if (userRepository.count() == 0) {
 
@@ -44,7 +34,7 @@ public class Application {
                 admin.setName("Admin");
                 admin.setEmail("admin@email.com");
                 admin.setPassword(passwordEncoder.encode("123456"));
-                admin.setRoles(Set.of(adminRole, userRole));
+                admin.setRole(UserModel.Role.ROLE_USER);
 
                 userRepository.save(admin);
             }

@@ -2,7 +2,6 @@ package com.allan.task.manager.user;
 
 import java.util.List;
 
-import com.allan.task.manager.role.RoleModel;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,9 +25,7 @@ public class UserService implements UserDetailsService {
         UserModel user = new UserModel();
         user.setEmail(result.get(0).getUsername());
         user.setPassword(result.get(0).getPassword());
-        for (UserDetailsProjection projection : result) {
-            user.addRole(new RoleModel(projection.getRoleId(), projection.getAuthority()));
-        }
+        user.setRole(UserModel.Role.valueOf(result.get(0).getAuthority()));
 
         return user;
     }

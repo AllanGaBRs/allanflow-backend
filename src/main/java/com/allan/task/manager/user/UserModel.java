@@ -1,6 +1,6 @@
 package com.allan.task.manager.user;
 
-import com.allan.task.manager.role.RoleModel;
+import com.allan.task.manager.membership.MembershipModel;
 import com.allan.task.manager.shared.Auditable;
 import com.allan.task.manager.task.TaskModel;
 import jakarta.persistence.*;
@@ -9,10 +9,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+
+import java.util.*;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import jakarta.persistence.Column;
@@ -33,6 +31,15 @@ import jakarta.persistence.Table;
 @EqualsAndHashCode(callSuper = false)
 public class UserModel extends Auditable implements UserDetails {
 
+    public enum Role implements GrantedAuthority {
+        ROLE_USER;
+
+        @Override
+        public String getAuthority() {
+            return name();
+        }
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -43,32 +50,19 @@ public class UserModel extends Auditable implements UserDetails {
     private String password;
 
     @ManyToMany(mappedBy = "assignees")
-    private Set<TaskModel> tasks;
+    private Set<TaskModel> tasks = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(name = "tb_user_role",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<RoleModel> roles = new HashSet<>();
+    @OneToMany(mappedBy = "user")
+    private Set<MembershipModel> memberships = new HashSet<>();
 
-    public void addRole(RoleModel role) {
-        roles.add(role);
-    }
-
-    public boolean hasRole(String roleName) {
-        for (RoleModel role : roles) {
-            if (role.getAuthority().equals(roleName)) {
-                return true;
-            }
-        }
-        return false;
-    }
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles;
+        return List.of(role);
     }
-
     @Override
     public String getUsername() {
         return email;
