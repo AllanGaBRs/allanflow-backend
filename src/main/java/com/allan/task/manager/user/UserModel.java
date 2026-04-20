@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.springframework.scheduling.config.Task;
 import org.springframework.security.core.GrantedAuthority;
 import java.util.Collection;
 import java.util.HashSet;
@@ -40,6 +41,9 @@ public class UserModel extends Auditable implements UserDetails {
     @Column(unique = true)
     private String email;
     private String password;
+
+    @ManyToMany(mappedBy = "assignees")
+    private Set<Task> tasks;
 
     @ManyToMany
     @JoinTable(name = "tb_user_role",
