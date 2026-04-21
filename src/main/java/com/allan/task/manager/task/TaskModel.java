@@ -1,6 +1,7 @@
 package com.allan.task.manager.task;
 
 import com.allan.task.manager.board.BoardModel;
+import com.allan.task.manager.checklist.ChecklistModel;
 import com.allan.task.manager.column.ColumnModel;
 import com.allan.task.manager.shared.Auditable;
 
@@ -14,6 +15,7 @@ import lombok.*;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -50,6 +52,9 @@ public class TaskModel extends Auditable {
 
     @Column(nullable = false)
     private Integer position;
+
+    @OneToMany(mappedBy = "task")
+    private List<ChecklistModel> checklists;
 
     @ManyToMany
     @JoinTable(
