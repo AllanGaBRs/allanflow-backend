@@ -4,6 +4,7 @@ import com.allan.task.manager.board.BoardModel;
 import com.allan.task.manager.checklist.ChecklistModel;
 import com.allan.task.manager.column.ColumnModel;
 import com.allan.task.manager.comment.CommentModel;
+import com.allan.task.manager.label.LabelModel;
 import com.allan.task.manager.shared.Auditable;
 
 import com.allan.task.manager.user.UserModel;
@@ -59,6 +60,14 @@ public class TaskModel extends Auditable {
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CommentModel> comments = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "task_labels",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "label_id")
+    )
+    private Set<LabelModel> labels = new HashSet<>();
 
     @ManyToMany
     @JoinTable(
