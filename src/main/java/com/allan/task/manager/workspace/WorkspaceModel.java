@@ -7,6 +7,7 @@ import com.allan.task.manager.user.UserModel;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -18,6 +19,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(callSuper = false)
 public class WorkspaceModel extends Auditable {
 
     @Id
@@ -34,9 +36,9 @@ public class WorkspaceModel extends Auditable {
     @JoinColumn(name = "owner_id", nullable = false)
     private UserModel owner;
 
-    @OneToMany(mappedBy = "workspace")
-    private List<BoardModel> boards;
+    @OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<BoardModel> boards = new HashSet<>();
 
-    @OneToMany(mappedBy = "workspace")
-    private Set<MembershipModel> memberships;
+    @OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<MembershipModel> memberships = new HashSet<>();
 }

@@ -2,6 +2,7 @@ package com.allan.task.manager.task;
 
 import com.allan.task.manager.board.BoardModel;
 import com.allan.task.manager.checklist.ChecklistModel;
+import com.allan.task.manager.client.ClientModel;
 import com.allan.task.manager.column.ColumnModel;
 import com.allan.task.manager.comment.CommentModel;
 import com.allan.task.manager.label.LabelModel;
@@ -68,6 +69,10 @@ public class TaskModel extends Auditable {
             inverseJoinColumns = @JoinColumn(name = "label_id")
     )
     private Set<LabelModel> labels = new HashSet<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_id")
+    private ClientModel client;
 
     @ManyToMany
     @JoinTable(
