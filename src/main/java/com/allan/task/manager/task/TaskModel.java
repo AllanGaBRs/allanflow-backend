@@ -64,7 +64,7 @@ public class TaskModel extends Auditable {
 
     @ManyToMany
     @JoinTable(
-            name = "task_labels",
+            name = "tb_task_labels",
             joinColumns = @JoinColumn(name = "task_id"),
             inverseJoinColumns = @JoinColumn(name = "label_id")
     )
@@ -76,7 +76,7 @@ public class TaskModel extends Auditable {
 
     @ManyToMany
     @JoinTable(
-            name = "task_assignees",
+            name = "tb_task_assignees",
             joinColumns = @JoinColumn(name = "task_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
