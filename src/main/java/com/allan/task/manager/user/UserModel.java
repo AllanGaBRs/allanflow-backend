@@ -1,5 +1,6 @@
 package com.allan.task.manager.user;
 
+import com.allan.task.manager.comment.CommentModel;
 import com.allan.task.manager.membership.MembershipModel;
 import com.allan.task.manager.shared.Auditable;
 import com.allan.task.manager.task.TaskModel;
@@ -58,6 +59,11 @@ public class UserModel extends Auditable implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
+
+    @OneToMany(mappedBy = "author")
+    private Set<CommentModel> comments = new HashSet<>();
+
+    private boolean isActive = true;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
