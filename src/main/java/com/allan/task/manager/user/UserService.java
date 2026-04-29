@@ -23,14 +23,14 @@ public class UserService {
     @Transactional
     public UserResponseDTO register(UserRegisterDTO dto) {
 
-        if (userRepository.existsByEmail(dto.getEmail())) {
+        if (userRepository.existsByEmail(dto.email())) {
             throw new UserAlreadyExistsException("Email already in use");
         }
 
         UserModel user = new UserModel();
-        user.setName(dto.getName());
-        user.setEmail(dto.getEmail());
-        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        user.setName(dto.name());
+        user.setEmail(dto.email());
+        user.setPassword(passwordEncoder.encode(dto.password()));
         user.setRole(UserModel.Role.ROLE_USER);
         user.setActive(true);
 
