@@ -22,4 +22,6 @@ public interface UserRepository extends JpaRepository<UserModel, UUID> {
     List<UserDetailsProjection> searchUserAndRolesByEmail(String email);
 
     Optional<UserModel> findByEmail(String email);
+
+    boolean existsByEmail(String email);
 }
