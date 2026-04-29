@@ -63,6 +63,7 @@ public class UserModel extends Auditable implements UserDetails {
     @OneToMany(mappedBy = "author")
     private Set<CommentModel> comments = new HashSet<>();
 
+    @Column(nullable = false)
     private boolean isActive = true;
 
     @Override

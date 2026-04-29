@@ -21,7 +21,11 @@ public interface UserRepository extends JpaRepository<UserModel, UUID> {
         """)
     List<UserDetailsProjection> searchUserAndRolesByEmail(String email);
 
+    boolean existsByEmail(String email);
+
     Optional<UserModel> findByEmail(String email);
 
-    boolean existsByEmail(String email);
+    List<UserModel> findAllByIsActiveTrue();
+
+    Optional<UserModel> findByIdAndIsActiveTrue(UUID id);
 }
