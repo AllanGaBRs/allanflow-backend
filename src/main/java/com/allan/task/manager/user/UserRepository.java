@@ -28,4 +28,9 @@ public interface UserRepository extends JpaRepository<UserModel, UUID> {
     List<UserModel> findAllByIsActiveTrue();
 
     Optional<UserModel> findByIdAndIsActiveTrue(UUID id);
+
+    boolean existsByEmailAndIsActiveTrue(String email);
+
+    Optional<UserModel> findByEmailAndIsActiveTrue(String email);
+
 }
