@@ -1,6 +1,5 @@
-package com.allan.task.manager.workspace.controller;
+package com.allan.task.manager.workspace;
 
-import com.allan.task.manager.workspace.WorkspaceService;
 import com.allan.task.manager.workspace.dto.WorkspaceCreateDTO;
 import com.allan.task.manager.workspace.dto.WorkspaceResponseDTO;
 import com.allan.task.manager.workspace.dto.WorkspaceUpdateDTO;
@@ -9,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.util.List;
 import java.util.UUID;
@@ -26,9 +26,9 @@ public class WorkspaceController {
     @PostMapping
     public ResponseEntity<WorkspaceResponseDTO> create(
             @RequestBody @Valid WorkspaceCreateDTO dto,
-            @AuthenticationPrincipal(expression = "username") String email
+            @AuthenticationPrincipal Jwt jwt
     ) {
-        WorkspaceResponseDTO response = workspaceService.create(dto, email);
+        WorkspaceResponseDTO response = workspaceService.create(dto, jwt.getClaimAsString("username"));
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -37,10 +37,10 @@ public class WorkspaceController {
 
     @GetMapping("/me")
     public ResponseEntity<List<WorkspaceResponseDTO>> findMyWorkspaces(
-            @AuthenticationPrincipal(expression = "username") String email
+            @AuthenticationPrincipal Jwt jwt
     ) {
         List<WorkspaceResponseDTO> response =
-                workspaceService.findMyWorkspaces(email);
+                workspaceService.findMyWorkspaces(jwt.getClaimAsString("username"));
 
         return ResponseEntity.ok(response);
     }
@@ -48,10 +48,10 @@ public class WorkspaceController {
     @GetMapping("/{workspaceId}")
     public ResponseEntity<WorkspaceResponseDTO> findById(
             @PathVariable UUID workspaceId,
-            @AuthenticationPrincipal(expression = "username") String email
+            @AuthenticationPrincipal Jwt jwt
     ) {
         WorkspaceResponseDTO response =
-                workspaceService.findById(workspaceId, email);
+                workspaceService.findById(workspaceId, jwt.getClaimAsString("username"));
 
         return ResponseEntity.ok(response);
     }
@@ -60,10 +60,10 @@ public class WorkspaceController {
     public ResponseEntity<WorkspaceResponseDTO> update(
             @PathVariable UUID workspaceId,
             @RequestBody @Valid WorkspaceUpdateDTO dto,
-            @AuthenticationPrincipal(expression = "username") String email
+            @AuthenticationPrincipal Jwt jwt
     ) {
         WorkspaceResponseDTO response =
-                workspaceService.update(workspaceId, dto, email);
+                workspaceService.update(workspaceId, dto, jwt.getClaimAsString("username"));
 
         return ResponseEntity.ok(response);
     }
@@ -71,9 +71,9 @@ public class WorkspaceController {
     @DeleteMapping("/{workspaceId}")
     public ResponseEntity<Void> delete(
             @PathVariable UUID workspaceId,
-            @AuthenticationPrincipal(expression = "username") String email
+            @AuthenticationPrincipal Jwt jwt
     ) {
-        workspaceService.delete(workspaceId, email);
+        workspaceService.delete(workspaceId, jwt.getClaimAsString("username"));
 
         return ResponseEntity.noContent().build();
     }
