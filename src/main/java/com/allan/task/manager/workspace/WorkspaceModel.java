@@ -36,6 +36,8 @@ public class WorkspaceModel extends Auditable {
     @JoinColumn(name = "owner_id", nullable = false)
     private UserModel owner;
 
+    private boolean isActive = true;
+
     @OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<BoardModel> boards = new HashSet<>();
 
