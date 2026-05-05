@@ -153,13 +153,17 @@ public class AuthorizationServerConfig {
         return context -> {
             OAuth2ClientAuthenticationToken principal = context.getPrincipal();
             CustomUserAuthorities user = (CustomUserAuthorities) principal.getDetails();
-            List<String> authorities = user.getAuthorities().stream().map(x -> x.getAuthority()).toList();
+
+            List<String> authorities = user.getAuthorities()
+                    .stream()
+                    .map(x -> x.getAuthority())
+                    .toList();
+
             if (context.getTokenType().getValue().equals("access_token")) {
-                // @formatter:off
                 context.getClaims()
                         .subject(user.getUsername())
-                        .claim("userId", user.getUserId().toString());
-                // @formatter:on
+                        .claim("userId", user.getUserId().toString())
+                        .claim("authorities", authorities);
             }
         };
     }

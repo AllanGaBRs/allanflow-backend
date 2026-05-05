@@ -30,7 +30,7 @@ public class WorkspaceController {
             @RequestBody @Valid WorkspaceCreateDTO dto,
             @AuthenticationPrincipal Jwt jwt
     ) {
-        WorkspaceResponseDTO response = workspaceService.create(dto, jwt.getClaimAsString("username"));
+        WorkspaceResponseDTO response = workspaceService.create(dto, jwt.getSubject());
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -43,7 +43,7 @@ public class WorkspaceController {
             @AuthenticationPrincipal Jwt jwt
     ) {
         List<WorkspaceResponseDTO> response =
-                workspaceService.findMyWorkspaces(jwt.getClaimAsString("username"));
+                workspaceService.findMyWorkspaces(jwt.getSubject());
 
         return ResponseEntity.ok(response);
     }
@@ -55,7 +55,7 @@ public class WorkspaceController {
             @AuthenticationPrincipal Jwt jwt
     ) {
         WorkspaceResponseDTO response =
-                workspaceService.findById(workspaceId, jwt.getClaimAsString("username"));
+                workspaceService.findById(workspaceId, jwt.getSubject());
 
         return ResponseEntity.ok(response);
     }
@@ -68,7 +68,7 @@ public class WorkspaceController {
             @AuthenticationPrincipal Jwt jwt
     ) {
         WorkspaceResponseDTO response =
-                workspaceService.update(workspaceId, dto, jwt.getClaimAsString("username"));
+                workspaceService.update(workspaceId, dto, jwt.getSubject());
 
         return ResponseEntity.ok(response);
     }
@@ -79,7 +79,7 @@ public class WorkspaceController {
             @PathVariable UUID workspaceId,
             @AuthenticationPrincipal Jwt jwt
     ) {
-        workspaceService.delete(workspaceId, jwt.getClaimAsString("username"));
+        workspaceService.delete(workspaceId, jwt.getSubject());
 
         return ResponseEntity.noContent().build();
     }
