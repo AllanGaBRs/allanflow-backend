@@ -4,6 +4,7 @@ import java.security.Principal;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.allan.task.manager.user.UserModel;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -80,7 +81,14 @@ public class CustomPasswordAuthenticationProvider implements AuthenticationProvi
 
         //-----------Create a new Security Context Holder Context----------
         OAuth2ClientAuthenticationToken oAuth2ClientAuthenticationToken = (OAuth2ClientAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-        CustomUserAuthorities customPasswordUser = new CustomUserAuthorities(username, user.getAuthorities());
+        UserModel userModel = (UserModel) user;
+
+        CustomUserAuthorities customPasswordUser =
+                new CustomUserAuthorities(
+                        userModel.getEmail(),
+                        userModel.getId(),
+                        userModel.getAuthorities()
+                );
         oAuth2ClientAuthenticationToken.setDetails(customPasswordUser);
 
         var newcontext = SecurityContextHolder.createEmptyContext();

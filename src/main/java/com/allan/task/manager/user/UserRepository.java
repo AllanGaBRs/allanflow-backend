@@ -13,6 +13,7 @@ public interface UserRepository extends JpaRepository<UserModel, UUID> {
 
     @Query(nativeQuery = true, value = """
             SELECT
+                tb_user.id AS id,
                 tb_user.email AS username,
                 tb_user.password,
                 tb_user.role AS authority

@@ -6,6 +6,7 @@ import com.allan.task.manager.workspace.dto.WorkspaceUpdateDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -23,6 +24,7 @@ public class WorkspaceController {
         this.workspaceService = workspaceService;
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @PostMapping
     public ResponseEntity<WorkspaceResponseDTO> create(
             @RequestBody @Valid WorkspaceCreateDTO dto,
@@ -35,6 +37,7 @@ public class WorkspaceController {
                 .body(response);
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("/me")
     public ResponseEntity<List<WorkspaceResponseDTO>> findMyWorkspaces(
             @AuthenticationPrincipal Jwt jwt
@@ -45,6 +48,7 @@ public class WorkspaceController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("/{workspaceId}")
     public ResponseEntity<WorkspaceResponseDTO> findById(
             @PathVariable UUID workspaceId,
@@ -56,6 +60,7 @@ public class WorkspaceController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @PutMapping("/{workspaceId}")
     public ResponseEntity<WorkspaceResponseDTO> update(
             @PathVariable UUID workspaceId,
@@ -68,6 +73,7 @@ public class WorkspaceController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @DeleteMapping("/{workspaceId}")
     public ResponseEntity<Void> delete(
             @PathVariable UUID workspaceId,
