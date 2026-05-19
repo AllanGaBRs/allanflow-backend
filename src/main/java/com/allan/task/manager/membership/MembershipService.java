@@ -6,13 +6,13 @@ import com.allan.task.manager.membership.dto.MembershipUpdateRoleDTO;
 import com.allan.task.manager.membership.exception.MembershipAlreadyExistsException;
 import com.allan.task.manager.membership.exception.MembershipNotFoundException;
 import com.allan.task.manager.membership.mapper.MembershipMapper;
+import com.allan.task.manager.shared.Utils;
 import com.allan.task.manager.user.UserModel;
 import com.allan.task.manager.user.UserRepository;
 import com.allan.task.manager.user.exception.UserNotFoundException;
 import com.allan.task.manager.workspace.WorkspaceModel;
 import com.allan.task.manager.workspace.WorkspaceRepository;
 import com.allan.task.manager.workspace.exception.WorkspaceAccessDeniedException;
-import com.allan.task.manager.workspace.exception.WorkspaceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,10 +42,15 @@ public class MembershipService {
             MembershipCreateDTO dto,
             UUID requesterId
     ) {
-        MembershipModel requesterMembership = findMembership(workspaceId, requesterId);
-        validateOwnerOrAdmin(requesterMembership);
+        MembershipModel requesterMembership = Utils.findMembership(
+                membershipRepository,
+                workspaceId,
+                requesterId,
+                () -> new MembershipNotFoundException("Membership not found")
+        );
+        Utils.validateOwnerOrAdmin(requesterMembership);
 
-        WorkspaceModel workspace = findActiveWorkspace(workspaceId);
+        WorkspaceModel workspace = Utils.findActiveWorkspaceById(workspaceRepository, workspaceId);
 
         UserModel userToAdd = userRepository.findByEmailAndIsActiveTrue(dto.email())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
@@ -73,7 +78,12 @@ public class MembershipService {
             UUID workspaceId,
             UUID requesterId
     ) {
-        findMembership(workspaceId, requesterId);
+        Utils.findMembership(
+                membershipRepository,
+                workspaceId,
+                requesterId,
+                () -> new MembershipNotFoundException("Membership not found")
+        );
 
         return MembershipMapper.toResponseList(
                 membershipRepository.findByWorkspaceId(workspaceId)
@@ -87,10 +97,20 @@ public class MembershipService {
             MembershipUpdateRoleDTO dto,
             UUID requesterId
     ) {
-        MembershipModel requesterMembership = findMembership(workspaceId, requesterId);
-        validateOwnerOrAdmin(requesterMembership);
+        MembershipModel requesterMembership = Utils.findMembership(
+                membershipRepository,
+                workspaceId,
+                requesterId,
+                () -> new MembershipNotFoundException("Membership not found")
+        );
+        Utils.validateOwnerOrAdmin(requesterMembership);
 
-        MembershipModel targetMembership = findMembership(workspaceId, targetUserId);
+        MembershipModel targetMembership = Utils.findMembership(
+                membershipRepository,
+                workspaceId,
+                targetUserId,
+                () -> new MembershipNotFoundException("Membership not found")
+        );
 
         if (targetMembership.getRole() == MembershipModel.MembershipRole.OWNER) {
             throw new WorkspaceAccessDeniedException("Cannot change owner role");
@@ -111,10 +131,20 @@ public class MembershipService {
             UUID targetUserId,
             UUID requesterId
     ) {
-        MembershipModel requesterMembership = findMembership(workspaceId, requesterId);
-        validateOwnerOrAdmin(requesterMembership);
+        MembershipModel requesterMembership = Utils.findMembership(
+                membershipRepository,
+                workspaceId,
+                requesterId,
+                () -> new MembershipNotFoundException("Membership not found")
+        );
+        Utils.validateOwnerOrAdmin(requesterMembership);
 
-        MembershipModel targetMembership = findMembership(workspaceId, targetUserId);
+        MembershipModel targetMembership = Utils.findMembership(
+                membershipRepository,
+                workspaceId,
+                targetUserId,
+                () -> new MembershipNotFoundException("Membership not found")
+        );
 
         if (targetMembership.getRole() == MembershipModel.MembershipRole.OWNER) {
             throw new WorkspaceAccessDeniedException("Cannot remove workspace owner");
@@ -125,22 +155,5 @@ public class MembershipService {
         }
 
         membershipRepository.delete(targetMembership);
-    }
-
-    private WorkspaceModel findActiveWorkspace(UUID workspaceId) {
-        return workspaceRepository.findByIdAndIsActiveTrue(workspaceId)
-                .orElseThrow(() -> new WorkspaceNotFoundException("Workspace not found"));
-    }
-
-    private MembershipModel findMembership(UUID workspaceId, UUID userId) {
-        return membershipRepository.findByWorkspaceIdAndUserId(workspaceId, userId)
-                .orElseThrow(() -> new MembershipNotFoundException("Membership not found"));
-    }
-
-    private void validateOwnerOrAdmin(MembershipModel membership) {
-        if (membership.getRole() != MembershipModel.MembershipRole.OWNER &&
-                membership.getRole() != MembershipModel.MembershipRole.ADMIN) {
-            throw new WorkspaceAccessDeniedException("You do not have permission to perform this action");
-        }
     }
 }

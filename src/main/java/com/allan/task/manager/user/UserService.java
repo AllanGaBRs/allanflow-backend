@@ -1,12 +1,12 @@
 package com.allan.task.manager.user;
 
+import com.allan.task.manager.shared.Utils;
 import com.allan.task.manager.user.dto.UserChangePasswordDTO;
 import com.allan.task.manager.user.dto.UserRegisterDTO;
 import com.allan.task.manager.user.dto.UserResponseDTO;
 import com.allan.task.manager.user.dto.UserUpdateDTO;
 import com.allan.task.manager.user.exception.InvalidPasswordException;
 import com.allan.task.manager.user.exception.UserAlreadyExistsException;
-import com.allan.task.manager.user.exception.UserNotFoundException;
 import com.allan.task.manager.user.mapper.UserMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -53,13 +53,13 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserResponseDTO findById(UUID id) {
-        UserModel user = findActiveUserById(id);
+        UserModel user = Utils.findActiveUserById(userRepository, id);
         return UserMapper.toResponse(user);
     }
 
     @Transactional
     public UserResponseDTO update(UUID id, UserUpdateDTO dto) {
-        UserModel user = findActiveUserById(id);
+        UserModel user = Utils.findActiveUserById(userRepository, id);
 
         if (dto.email() != null && !dto.email().equals(user.getEmail())) {
             if (userRepository.existsByEmail(dto.email())) {
@@ -79,7 +79,7 @@ public class UserService {
 
     @Transactional
     public void changePassword(UUID id, UserChangePasswordDTO dto) {
-        UserModel user = findActiveUserById(id);
+        UserModel user = Utils.findActiveUserById(userRepository, id);
 
         boolean passwordMatches = passwordEncoder.matches(
                 dto.currentPassword(),
@@ -97,15 +97,10 @@ public class UserService {
 
     @Transactional
     public void delete(UUID id) {
-        UserModel user = findActiveUserById(id);
+        UserModel user = Utils.findActiveUserById(userRepository, id);
 
         user.setActive(false);
 
         userRepository.save(user);
-    }
-
-    private UserModel findActiveUserById(UUID id) {
-        return userRepository.findByIdAndIsActiveTrue(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 }
