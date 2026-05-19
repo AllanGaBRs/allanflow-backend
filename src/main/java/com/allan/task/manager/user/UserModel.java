@@ -1,5 +1,6 @@
 package com.allan.task.manager.user;
 
+import com.allan.task.manager.board.BoardModel;
 import com.allan.task.manager.comment.CommentModel;
 import com.allan.task.manager.membership.MembershipModel;
 import com.allan.task.manager.shared.Auditable;
@@ -9,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.*;
@@ -55,6 +57,11 @@ public class UserModel extends Auditable implements UserDetails {
 
     @OneToMany(mappedBy = "user")
     private Set<MembershipModel> memberships = new HashSet<>();
+
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @ManyToMany(mappedBy = "members")
+    private Set<BoardModel> boards = new HashSet<>();
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

@@ -2,11 +2,14 @@ package com.allan.task.manager.board;
 
 import com.allan.task.manager.column.ColumnModel;
 import com.allan.task.manager.shared.Auditable;
+import com.allan.task.manager.user.UserModel;
 import com.allan.task.manager.workspace.WorkspaceModel;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -34,4 +37,14 @@ public class BoardModel extends Auditable {
 
     @OneToMany(mappedBy = "board")
     private List<ColumnModel> columns;
+
+    @ManyToMany
+    @JoinTable(
+            name = "tb_board_members",
+            joinColumns = @JoinColumn(name = "board_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"board_id", "user_id"})
+    )
+    @Builder.Default
+    private Set<UserModel> members = new HashSet<>();
 }
