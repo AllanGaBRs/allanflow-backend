@@ -1,19 +1,15 @@
 package com.allan.task.manager.column;
 
 import com.allan.task.manager.board.BoardModel;
-import com.allan.task.manager.board.BoardRepository;
-import com.allan.task.manager.board.exceptions.BoardNotFoundException;
+import com.allan.task.manager.board.BoardLookupService;
 import com.allan.task.manager.column.dto.ColumnCreateDTO;
 import com.allan.task.manager.column.dto.ColumnResponseDTO;
 import com.allan.task.manager.column.dto.ColumnUpdateDTO;
 import com.allan.task.manager.column.exceptions.ColumnNotFoundException;
 import com.allan.task.manager.column.mapper.ColumnMapper;
-import com.allan.task.manager.membership.MembershipModel;
-import com.allan.task.manager.membership.MembershipRepository;
-import com.allan.task.manager.shared.Utils;
 import com.allan.task.manager.workspace.WorkspaceModel;
-import com.allan.task.manager.workspace.WorkspaceRepository;
-import com.allan.task.manager.workspace.exception.WorkspaceAccessDeniedException;
+import com.allan.task.manager.workspace.WorkspaceLookupService;
+import com.allan.task.manager.workspace.WorkspacePermissionService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,20 +20,20 @@ import java.util.UUID;
 public class ColumnService {
 
     private final ColumnRepository columnRepository;
-    private final BoardRepository boardRepository;
-    private final WorkspaceRepository workspaceRepository;
-    private final MembershipRepository membershipRepository;
+    private final BoardLookupService boardLookupService;
+    private final WorkspaceLookupService workspaceLookupService;
+    private final WorkspacePermissionService workspacePermissionService;
 
     public ColumnService(
             ColumnRepository columnRepository,
-            BoardRepository boardRepository,
-            WorkspaceRepository workspaceRepository,
-            MembershipRepository membershipRepository
+            BoardLookupService boardLookupService,
+            WorkspaceLookupService workspaceLookupService,
+            WorkspacePermissionService workspacePermissionService
     ) {
         this.columnRepository = columnRepository;
-        this.boardRepository = boardRepository;
-        this.workspaceRepository = workspaceRepository;
-        this.membershipRepository = membershipRepository;
+        this.boardLookupService = boardLookupService;
+        this.workspaceLookupService = workspaceLookupService;
+        this.workspacePermissionService = workspacePermissionService;
     }
 
     @Transactional
@@ -47,11 +43,10 @@ public class ColumnService {
             ColumnCreateDTO dto,
             UUID requesterId
     ) {
-        MembershipModel requesterMembership = findWorkspaceMembership(workspaceId, requesterId);
-        Utils.validateOwnerOrAdmin(requesterMembership);
+        workspacePermissionService.requireOwnerOrAdmin(workspaceId, requesterId);
 
-        WorkspaceModel workspace = Utils.findActiveWorkspaceById(workspaceRepository, workspaceId);
-        BoardModel board = findBoardInWorkspace(workspaceId, boardId);
+        WorkspaceModel workspace = workspaceLookupService.findActiveById(workspaceId);
+        BoardModel board = boardLookupService.findInWorkspace(workspaceId, boardId);
 
         ColumnModel column = new ColumnModel();
         column.setName(dto.name());
@@ -66,9 +61,9 @@ public class ColumnService {
 
     @Transactional(readOnly = true)
     public List<ColumnResponseDTO> findAll(UUID workspaceId, UUID boardId, UUID requesterId) {
-        findWorkspaceMembership(workspaceId, requesterId);
-        Utils.findActiveWorkspaceById(workspaceRepository, workspaceId);
-        findBoardInWorkspace(workspaceId, boardId);
+        workspacePermissionService.requireMember(workspaceId, requesterId);
+        workspaceLookupService.findActiveById(workspaceId);
+        boardLookupService.findInWorkspace(workspaceId, boardId);
 
         return ColumnMapper.toResponseList(
                 columnRepository.findByWorkspaceIdAndBoardIdOrderByPositionAsc(workspaceId, boardId)
@@ -82,8 +77,8 @@ public class ColumnService {
             UUID columnId,
             UUID requesterId
     ) {
-        findWorkspaceMembership(workspaceId, requesterId);
-        findBoardInWorkspace(workspaceId, boardId);
+        workspacePermissionService.requireMember(workspaceId, requesterId);
+        boardLookupService.findInWorkspace(workspaceId, boardId);
 
         ColumnModel column = findColumnInBoard(workspaceId, boardId, columnId);
 
@@ -98,9 +93,8 @@ public class ColumnService {
             ColumnUpdateDTO dto,
             UUID requesterId
     ) {
-        MembershipModel requesterMembership = findWorkspaceMembership(workspaceId, requesterId);
-        Utils.validateOwnerOrAdmin(requesterMembership);
-        findBoardInWorkspace(workspaceId, boardId);
+        workspacePermissionService.requireOwnerOrAdmin(workspaceId, requesterId);
+        boardLookupService.findInWorkspace(workspaceId, boardId);
 
         ColumnModel column = findColumnInBoard(workspaceId, boardId, columnId);
 
@@ -119,9 +113,8 @@ public class ColumnService {
 
     @Transactional
     public void delete(UUID workspaceId, UUID boardId, UUID columnId, UUID requesterId) {
-        MembershipModel requesterMembership = findWorkspaceMembership(workspaceId, requesterId);
-        Utils.validateOwnerOrAdmin(requesterMembership);
-        findBoardInWorkspace(workspaceId, boardId);
+        workspacePermissionService.requireOwnerOrAdmin(workspaceId, requesterId);
+        boardLookupService.findInWorkspace(workspaceId, boardId);
 
         ColumnModel column = findColumnInBoard(workspaceId, boardId, columnId);
 
@@ -136,26 +129,8 @@ public class ColumnService {
         return columnRepository.findMaxPositionByWorkspaceIdAndBoardId(workspaceId, boardId) + 1;
     }
 
-    private BoardModel findBoardInWorkspace(UUID workspaceId, UUID boardId) {
-        return Utils.findBoardInWorkspace(
-                boardRepository,
-                workspaceId,
-                boardId,
-                () -> new BoardNotFoundException("Board not found")
-        );
-    }
-
     private ColumnModel findColumnInBoard(UUID workspaceId, UUID boardId, UUID columnId) {
         return columnRepository.findByIdAndWorkspaceIdAndBoardId(columnId, workspaceId, boardId)
                 .orElseThrow(() -> new ColumnNotFoundException("Column not found"));
-    }
-
-    private MembershipModel findWorkspaceMembership(UUID workspaceId, UUID requesterId) {
-        return Utils.findMembership(
-                membershipRepository,
-                workspaceId,
-                requesterId,
-                () -> new WorkspaceAccessDeniedException("You do not have access to this workspace")
-        );
     }
 }

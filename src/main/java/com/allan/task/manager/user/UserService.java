@@ -1,6 +1,5 @@
 package com.allan.task.manager.user;
 
-import com.allan.task.manager.shared.Utils;
 import com.allan.task.manager.user.dto.UserChangePasswordDTO;
 import com.allan.task.manager.user.dto.UserRegisterDTO;
 import com.allan.task.manager.user.dto.UserResponseDTO;
@@ -19,11 +18,14 @@ import java.util.UUID;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserLookupService userLookupService;
     private final PasswordEncoder passwordEncoder;
 
     public UserService(UserRepository userRepository,
+                       UserLookupService userLookupService,
                        PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.userLookupService = userLookupService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -53,13 +55,13 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserResponseDTO findById(UUID id) {
-        UserModel user = Utils.findActiveUserById(userRepository, id);
+        UserModel user = userLookupService.findActiveById(id);
         return UserMapper.toResponse(user);
     }
 
     @Transactional
     public UserResponseDTO update(UUID id, UserUpdateDTO dto) {
-        UserModel user = Utils.findActiveUserById(userRepository, id);
+        UserModel user = userLookupService.findActiveById(id);
 
         if (dto.email() != null && !dto.email().equals(user.getEmail())) {
             if (userRepository.existsByEmail(dto.email())) {
@@ -79,7 +81,7 @@ public class UserService {
 
     @Transactional
     public void changePassword(UUID id, UserChangePasswordDTO dto) {
-        UserModel user = Utils.findActiveUserById(userRepository, id);
+        UserModel user = userLookupService.findActiveById(id);
 
         boolean passwordMatches = passwordEncoder.matches(
                 dto.currentPassword(),
@@ -97,7 +99,7 @@ public class UserService {
 
     @Transactional
     public void delete(UUID id) {
-        UserModel user = Utils.findActiveUserById(userRepository, id);
+        UserModel user = userLookupService.findActiveById(id);
 
         user.setActive(false);
 
