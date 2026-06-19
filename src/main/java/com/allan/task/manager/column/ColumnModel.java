@@ -2,10 +2,13 @@ package com.allan.task.manager.column;
 
 import com.allan.task.manager.board.BoardModel;
 import com.allan.task.manager.shared.Auditable;
+import com.allan.task.manager.task.TaskModel;
 import com.allan.task.manager.workspace.WorkspaceModel;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -35,4 +38,6 @@ public class ColumnModel extends Auditable {
     @JoinColumn(name = "workspace_id", nullable = false)
     private WorkspaceModel workspace;
 
+    @OneToMany(mappedBy = "column", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<TaskModel> tasks = new HashSet<>();
 }
