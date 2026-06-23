@@ -20,17 +20,18 @@ import java.util.UUID;
 public class ColumnService {
 
     private final ColumnRepository columnRepository;
+    private final ColumnLookupService columnLookupService;
     private final BoardLookupService boardLookupService;
     private final WorkspaceLookupService workspaceLookupService;
     private final WorkspacePermissionService workspacePermissionService;
 
-    public ColumnService(
-            ColumnRepository columnRepository,
-            BoardLookupService boardLookupService,
-            WorkspaceLookupService workspaceLookupService,
-            WorkspacePermissionService workspacePermissionService
-    ) {
+    public ColumnService(ColumnRepository columnRepository,
+                         ColumnLookupService columnLookupService,
+                         BoardLookupService boardLookupService,
+                         WorkspaceLookupService workspaceLookupService,
+                         WorkspacePermissionService workspacePermissionService) {
         this.columnRepository = columnRepository;
+        this.columnLookupService = columnLookupService;
         this.boardLookupService = boardLookupService;
         this.workspaceLookupService = workspaceLookupService;
         this.workspacePermissionService = workspacePermissionService;
@@ -50,7 +51,7 @@ public class ColumnService {
 
         ColumnModel column = new ColumnModel();
         column.setName(dto.name());
-        column.setPosition(resolvePosition(workspaceId, boardId, dto.position()));
+        column.setPosition(columnLookupService.resolvePosition(workspaceId, boardId, dto.position()));
         column.setWorkspace(workspace);
         column.setBoard(board);
 
@@ -80,7 +81,7 @@ public class ColumnService {
         workspacePermissionService.requireMember(workspaceId, requesterId);
         boardLookupService.findInWorkspace(workspaceId, boardId);
 
-        ColumnModel column = findColumnInBoard(workspaceId, boardId, columnId);
+        ColumnModel column = columnLookupService.findColumnInBoard(workspaceId, boardId, columnId);
 
         return ColumnMapper.toResponse(column);
     }
@@ -96,7 +97,7 @@ public class ColumnService {
         workspacePermissionService.requireOwnerOrAdmin(workspaceId, requesterId);
         boardLookupService.findInWorkspace(workspaceId, boardId);
 
-        ColumnModel column = findColumnInBoard(workspaceId, boardId, columnId);
+        ColumnModel column = columnLookupService.findColumnInBoard(workspaceId, boardId, columnId);
 
         if (dto.name() != null && !dto.name().isBlank()) {
             column.setName(dto.name());
@@ -116,21 +117,8 @@ public class ColumnService {
         workspacePermissionService.requireOwnerOrAdmin(workspaceId, requesterId);
         boardLookupService.findInWorkspace(workspaceId, boardId);
 
-        ColumnModel column = findColumnInBoard(workspaceId, boardId, columnId);
+        ColumnModel column = columnLookupService.findColumnInBoard(workspaceId, boardId, columnId);
 
         columnRepository.delete(column);
-    }
-
-    private Integer resolvePosition(UUID workspaceId, UUID boardId, Integer requestedPosition) {
-        if (requestedPosition != null) {
-            return requestedPosition;
-        }
-
-        return columnRepository.findMaxPositionByWorkspaceIdAndBoardId(workspaceId, boardId) + 1;
-    }
-
-    private ColumnModel findColumnInBoard(UUID workspaceId, UUID boardId, UUID columnId) {
-        return columnRepository.findByIdAndWorkspaceIdAndBoardId(columnId, workspaceId, boardId)
-                .orElseThrow(() -> new ColumnNotFoundException("Column not found"));
     }
 }
