@@ -5,7 +5,6 @@ import com.allan.task.manager.board.BoardLookupService;
 import com.allan.task.manager.column.dto.ColumnCreateDTO;
 import com.allan.task.manager.column.dto.ColumnResponseDTO;
 import com.allan.task.manager.column.dto.ColumnUpdateDTO;
-import com.allan.task.manager.column.exceptions.ColumnNotFoundException;
 import com.allan.task.manager.column.mapper.ColumnMapper;
 import com.allan.task.manager.workspace.WorkspaceModel;
 import com.allan.task.manager.workspace.WorkspaceLookupService;

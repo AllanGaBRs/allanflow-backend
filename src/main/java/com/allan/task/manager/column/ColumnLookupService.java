@@ -1,9 +1,11 @@
 package com.allan.task.manager.column;
 
 import com.allan.task.manager.column.exceptions.ColumnNotFoundException;
+import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+@Service
 public class ColumnLookupService {
 
     private final ColumnRepository columnRepository;
