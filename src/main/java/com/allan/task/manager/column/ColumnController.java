@@ -6,6 +6,7 @@ import com.allan.task.manager.column.dto.ColumnUpdateDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,6 +31,7 @@ public class ColumnController {
         this.columnService = columnService;
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @PostMapping
     public ResponseEntity<ColumnResponseDTO> create(
             @PathVariable UUID workspaceId,
@@ -44,6 +46,7 @@ public class ColumnController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping
     public ResponseEntity<List<ColumnResponseDTO>> findAll(
             @PathVariable UUID workspaceId,
@@ -57,6 +60,7 @@ public class ColumnController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("/{columnId}")
     public ResponseEntity<ColumnResponseDTO> findById(
             @PathVariable UUID workspaceId,
@@ -71,6 +75,7 @@ public class ColumnController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @PutMapping("/{columnId}")
     public ResponseEntity<ColumnResponseDTO> update(
             @PathVariable UUID workspaceId,
@@ -86,6 +91,7 @@ public class ColumnController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @DeleteMapping("/{columnId}")
     public ResponseEntity<Void> delete(
             @PathVariable UUID workspaceId,

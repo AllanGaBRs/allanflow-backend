@@ -6,6 +6,7 @@ import com.allan.task.manager.board.dto.BoardUpdateDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,6 +31,7 @@ public class BoardController {
         this.boardService = boardService;
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @PostMapping
     public ResponseEntity<BoardResponseDTO> create(
             @PathVariable UUID workspaceId,
@@ -43,6 +45,7 @@ public class BoardController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping
     public ResponseEntity<List<BoardResponseDTO>> findAll(
             @PathVariable UUID workspaceId,
@@ -55,6 +58,7 @@ public class BoardController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("/{boardId}")
     public ResponseEntity<BoardResponseDTO> findById(
             @PathVariable UUID workspaceId,
@@ -68,6 +72,7 @@ public class BoardController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @PutMapping("/{boardId}")
     public ResponseEntity<BoardResponseDTO> update(
             @PathVariable UUID workspaceId,
@@ -82,6 +87,7 @@ public class BoardController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @DeleteMapping("/{boardId}")
     public ResponseEntity<Void> delete(
             @PathVariable UUID workspaceId,

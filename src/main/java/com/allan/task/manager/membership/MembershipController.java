@@ -6,6 +6,7 @@ import com.allan.task.manager.membership.dto.MembershipUpdateRoleDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,7 @@ public class MembershipController {
         this.membershipService = membershipService;
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @PostMapping
     public ResponseEntity<MembershipResponseDTO> addMember(
             @PathVariable UUID workspaceId,
@@ -40,6 +42,7 @@ public class MembershipController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping
     public ResponseEntity<List<MembershipResponseDTO>> findMembers(
             @PathVariable UUID workspaceId,
@@ -55,6 +58,7 @@ public class MembershipController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @PutMapping("/{userId}")
     public ResponseEntity<MembershipResponseDTO> updateRole(
             @PathVariable UUID workspaceId,
@@ -74,6 +78,7 @@ public class MembershipController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @DeleteMapping("/{userId}")
     public ResponseEntity<Void> removeMember(
             @PathVariable UUID workspaceId,
