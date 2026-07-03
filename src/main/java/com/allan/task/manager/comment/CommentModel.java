@@ -10,7 +10,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "tb_comment")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)

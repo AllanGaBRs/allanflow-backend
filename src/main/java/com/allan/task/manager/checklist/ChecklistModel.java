@@ -12,7 +12,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "tb_checklist")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)

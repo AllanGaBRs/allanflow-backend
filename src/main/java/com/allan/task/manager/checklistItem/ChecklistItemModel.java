@@ -9,7 +9,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "tb_checklist_item")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
