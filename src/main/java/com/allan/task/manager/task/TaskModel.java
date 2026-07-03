@@ -31,6 +31,12 @@ import java.util.UUID;
 @Builder
 public class TaskModel extends Auditable {
 
+    public enum Priority {
+        LOW,
+        MEDIUM,
+        HIGH
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -55,6 +61,16 @@ public class TaskModel extends Auditable {
 
     @Column(nullable = false)
     private Integer position;
+
+    @Builder.Default
+    private boolean archived = false;
+
+    private LocalDateTime dueDate;
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    @Column(nullable = false)
+    private Priority priority = Priority.MEDIUM;
 
     @OneToMany(mappedBy = "task")
     private List<ChecklistModel> checklists;
