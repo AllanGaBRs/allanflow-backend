@@ -1,5 +1,6 @@
 package com.allan.task.manager.label;
 
+import com.allan.task.manager.board.BoardModel;
 import com.allan.task.manager.shared.Auditable;
 import com.allan.task.manager.task.TaskModel;
 import com.allan.task.manager.workspace.WorkspaceModel;
@@ -11,8 +12,15 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = "tb_label")
-@Data
+@Table(
+        name = "tb_label",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_label_board_name",
+                columnNames = {"board_id", "name"}
+        )
+)
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
@@ -27,8 +35,8 @@ public class LabelModel extends Auditable {
     private String color;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "workspace_id", nullable = false)
-    private WorkspaceModel workspace;
+    @JoinColumn(name = "board_id", nullable = false)
+    private BoardModel board;
 
     @ManyToMany(mappedBy = "labels")
     private Set<TaskModel> tasks = new HashSet<>();

@@ -1,6 +1,7 @@
 package com.allan.task.manager.board;
 
 import com.allan.task.manager.column.ColumnModel;
+import com.allan.task.manager.label.LabelModel;
 import com.allan.task.manager.shared.Auditable;
 import com.allan.task.manager.user.UserModel;
 import com.allan.task.manager.workspace.WorkspaceModel;
@@ -37,6 +38,9 @@ public class BoardModel extends Auditable {
 
     @OneToMany(mappedBy = "board")
     private List<ColumnModel> columns;
+
+    @OneToMany(mappedBy = "board")
+    private Set<LabelModel> labels = new HashSet<>();
 
     @ManyToMany
     @JoinTable(

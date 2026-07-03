@@ -6,11 +6,7 @@ import com.allan.task.manager.membership.MembershipModel;
 import com.allan.task.manager.shared.Auditable;
 import com.allan.task.manager.task.TaskModel;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.*;
@@ -28,7 +24,8 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tb_user")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
