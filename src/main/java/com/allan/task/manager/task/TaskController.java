@@ -1,0 +1,48 @@
+package com.allan.task.manager.task;
+
+import com.allan.task.manager.task.dto.TaskCreateDTO;
+import com.allan.task.manager.task.dto.TaskResponseDTO;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/workspaces/{workspaceId}/boards/{boardId}/columns/{columnId}/tasks")
+public class TaskController {
+
+    private final TaskService taskService;
+
+    public TaskController(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @PostMapping
+    public ResponseEntity<TaskResponseDTO> create(
+            @PathVariable UUID workspaceId,
+            @PathVariable UUID boardId,
+            @PathVariable UUID columnId,
+            @RequestBody @Valid TaskCreateDTO dto,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
+
+        TaskResponseDTO response = taskService.create(
+                dto,
+                workspaceId,
+                boardId,
+                columnId,
+                requesterId
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
+    }
+}

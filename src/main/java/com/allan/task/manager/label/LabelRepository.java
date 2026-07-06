@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Repository
@@ -13,4 +14,9 @@ public interface LabelRepository extends JpaRepository<LabelModel, UUID> {
     Optional<LabelModel> findByIdAndBoardId(UUID id, UUID boardId);
 
     List<LabelModel> findByBoardId(UUID boardId);
+
+    List<LabelModel> findByBoardIdAndIdIn(
+            UUID boardId,
+            Set<UUID> labelIds
+    );
 }
