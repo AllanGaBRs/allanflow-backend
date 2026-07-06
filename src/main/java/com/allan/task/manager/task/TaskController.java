@@ -10,6 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -88,5 +89,25 @@ public class TaskController {
         );
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @GetMapping
+    public ResponseEntity<List<TaskResponseDTO>> findAllByColumn(
+            @PathVariable UUID workspaceId,
+            @PathVariable UUID boardId,
+            @PathVariable UUID columnId,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
+
+        List<TaskResponseDTO> response = taskService.findAllByColumn(
+                workspaceId,
+                boardId,
+                columnId,
+                requesterId
+        );
+
+        return ResponseEntity.ok(response);
     }
 }

@@ -125,5 +125,20 @@ public class TaskService {
         taskRepository.delete(task);
     }
 
+    @Transactional(readOnly = true)
+    public List<TaskResponseDTO> findAllByColumn(
+            UUID workspaceId,
+            UUID boardId,
+            UUID columnId,
+            UUID requesterId
+    ) {
+        workspacePermissionService.requireMember(workspaceId, requesterId);
 
+        columnLookupService.findColumnInBoard(workspaceId, boardId, columnId);
+
+        List<TaskModel> tasks =
+                taskRepository.findAllByColumnIdOrderByPositionAsc(columnId);
+
+        return TaskMapper.toResponseList(tasks);
+    }
 }
