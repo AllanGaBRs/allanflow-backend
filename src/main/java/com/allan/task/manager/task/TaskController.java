@@ -45,4 +45,48 @@ public class TaskController {
                 .status(HttpStatus.CREATED)
                 .body(response);
     }
+
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @GetMapping("/{taskId}")
+    public ResponseEntity<TaskResponseDTO> findById(
+            @PathVariable UUID workspaceId,
+            @PathVariable UUID boardId,
+            @PathVariable UUID columnId,
+            @PathVariable UUID taskId,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
+
+        TaskResponseDTO response = taskService.findById(
+                workspaceId,
+                boardId,
+                columnId,
+                taskId,
+                requesterId
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @DeleteMapping("/{taskId}")
+    public ResponseEntity<Void> delete(
+            @PathVariable UUID workspaceId,
+            @PathVariable UUID boardId,
+            @PathVariable UUID columnId,
+            @PathVariable UUID taskId,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
+
+        taskService.delete(
+                workspaceId,
+                boardId,
+                columnId,
+                taskId,
+                requesterId
+        );
+
+        return ResponseEntity.noContent().build();
+    }
 }

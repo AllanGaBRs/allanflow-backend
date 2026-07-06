@@ -90,4 +90,40 @@ public class TaskService {
 
         return TaskMapper.toResponse(saved);
     }
+
+    @Transactional(readOnly = true)
+    public TaskResponseDTO findById(
+            UUID workspaceId,
+            UUID boardId,
+            UUID columnId,
+            UUID taskId,
+            UUID requesterId
+    ) {
+        workspacePermissionService.requireMember(workspaceId, requesterId);
+
+        columnLookupService.findColumnInBoard(workspaceId, boardId, columnId);
+
+        TaskModel task = taskLookupService.findTaskInColumn(columnId, taskId);
+
+        return TaskMapper.toResponse(task);
+    }
+
+    @Transactional
+    public void delete(
+            UUID workspaceId,
+            UUID boardId,
+            UUID columnId,
+            UUID taskId,
+            UUID requesterId
+    ) {
+        workspacePermissionService.requireOwnerOrAdmin(workspaceId, requesterId);
+
+        columnLookupService.findColumnInBoard(workspaceId, boardId, columnId);
+
+        TaskModel task = taskLookupService.findTaskInColumn(columnId, taskId);
+
+        taskRepository.delete(task);
+    }
+
+
 }
