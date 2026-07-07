@@ -69,8 +69,12 @@ public class TaskModel extends Auditable {
     @Column(nullable = false)
     private Priority priority = Priority.MEDIUM;
 
-    @OneToMany(mappedBy = "task")
-    private List<ChecklistModel> checklists = new ArrayList<>();;
+    @OneToMany(
+            mappedBy = "task",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<ChecklistModel> checklists = new ArrayList<>();
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CommentModel> comments = new HashSet<>();

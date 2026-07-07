@@ -9,7 +9,7 @@ import lombok.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "tb_comment")
+@Table(name = "tb_comments")
 @Getter
 @Setter
 @NoArgsConstructor

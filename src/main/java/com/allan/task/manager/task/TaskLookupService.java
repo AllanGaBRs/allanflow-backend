@@ -18,8 +18,23 @@ public class TaskLookupService {
         return taskRepository.findMaxPositionByColumnId(columnId) + 1;
     }
 
-    public TaskModel findTaskInColumn(UUID columnId, UUID taskId) {
+    public TaskModel findTaskInColumn(
+            UUID columnId,
+            UUID taskId
+    ) {
         return taskRepository.findByIdAndColumnId(taskId, columnId)
-                .orElseThrow(() -> new TaskNotFoundException("Task not found"));
+                .orElseThrow(() ->
+                        new TaskNotFoundException("Task not found")
+                );
+    }
+
+    public TaskModel findTaskInWorkspace(
+            UUID workspaceId,
+            UUID taskId
+    ) {
+        return taskRepository.findByIdAndWorkspaceId(taskId, workspaceId)
+                .orElseThrow(() ->
+                        new TaskNotFoundException("Task not found")
+                );
     }
 }
