@@ -1,10 +1,12 @@
 package com.allan.task.manager.task;
 
 import com.allan.task.manager.task.dto.TaskCreateDTO;
+import com.allan.task.manager.task.dto.TaskMoveDTO;
 import com.allan.task.manager.task.dto.TaskResponseDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.config.Task;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -105,6 +107,30 @@ public class TaskController {
                 workspaceId,
                 boardId,
                 columnId,
+                requesterId
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @PatchMapping("/{taskId}/move")
+    public ResponseEntity<TaskResponseDTO> moveTask(
+            @PathVariable UUID workspaceId,
+            @PathVariable UUID boardId,
+            @PathVariable UUID columnId,
+            @PathVariable UUID taskId,
+            @RequestBody @Valid TaskMoveDTO dto,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
+
+        TaskResponseDTO response = taskService.moveTask(
+                workspaceId,
+                boardId,
+                columnId,
+                taskId,
+                dto,
                 requesterId
         );
 

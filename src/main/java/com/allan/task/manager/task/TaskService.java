@@ -5,6 +5,7 @@ import com.allan.task.manager.column.ColumnModel;
 import com.allan.task.manager.label.LabelLookupService;
 import com.allan.task.manager.label.LabelModel;
 import com.allan.task.manager.task.dto.TaskCreateDTO;
+import com.allan.task.manager.task.dto.TaskMoveDTO;
 import com.allan.task.manager.task.dto.TaskResponseDTO;
 import com.allan.task.manager.task.mapper.TaskMapper;
 import com.allan.task.manager.user.UserLookupService;
@@ -140,5 +141,36 @@ public class TaskService {
                 taskRepository.findAllByColumnIdOrderByPositionAsc(columnId);
 
         return TaskMapper.toResponseList(tasks);
+    }
+
+    //TODO: Implement task reordering when drag-and-drop support is added.
+    @Transactional
+    public TaskResponseDTO moveTask(
+            UUID workspaceId,
+            UUID boardId,
+            UUID sourceColumnId,
+            UUID taskId,
+            TaskMoveDTO dto,
+            UUID requesterId
+    ){
+        workspacePermissionService.requireMember(workspaceId, requesterId);
+
+        columnLookupService.findColumnInBoard(workspaceId, boardId, sourceColumnId);
+        ColumnModel targetColumn = columnLookupService.findColumnInBoard(workspaceId, boardId, dto.targetColumnId());
+
+        TaskModel task = taskLookupService.findTaskInColumn(sourceColumnId, taskId);
+
+        //TODO: Remove this early return when task reordering within the same column is supported.
+        if (sourceColumnId.equals(dto.targetColumnId())) {
+            return TaskMapper.toResponse(task);
+        }
+
+        task.setColumn(targetColumn);
+        task.setPosition(
+                taskLookupService.resolvePosition(dto.targetColumnId())
+        );
+
+        task = taskRepository.save(task);
+        return TaskMapper.toResponse(task);
     }
 }
