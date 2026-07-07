@@ -45,7 +45,7 @@ public class UserModel extends Auditable implements UserDetails {
     private UUID id;
     private String name;
 
-    @Column(unique = true)
+    @Column(nullable = false, unique = true)
     private String email;
     private String password;
 
