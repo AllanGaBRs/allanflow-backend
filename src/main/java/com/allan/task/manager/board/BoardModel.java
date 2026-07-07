@@ -8,10 +8,7 @@ import com.allan.task.manager.workspace.WorkspaceModel;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "tb_board")
@@ -36,8 +33,12 @@ public class BoardModel extends Auditable {
     @JoinColumn(name = "workspace_id", nullable = false)
     private WorkspaceModel workspace;
 
-    @OneToMany(mappedBy = "board")
-    private List<ColumnModel> columns;
+    @OneToMany(
+            mappedBy = "board",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<ColumnModel> columns = new ArrayList<>();
 
     @OneToMany(mappedBy = "board")
     private Set<LabelModel> labels = new HashSet<>();

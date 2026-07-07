@@ -17,10 +17,7 @@ import lombok.*;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "tb_task")
@@ -73,7 +70,7 @@ public class TaskModel extends Auditable {
     private Priority priority = Priority.MEDIUM;
 
     @OneToMany(mappedBy = "task")
-    private List<ChecklistModel> checklists;
+    private List<ChecklistModel> checklists = new ArrayList<>();;
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CommentModel> comments = new HashSet<>();

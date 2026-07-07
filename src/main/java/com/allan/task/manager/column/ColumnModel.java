@@ -7,9 +7,7 @@ import com.allan.task.manager.workspace.WorkspaceModel;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "tb_column")
@@ -38,6 +36,11 @@ public class ColumnModel extends Auditable {
     @JoinColumn(name = "workspace_id", nullable = false)
     private WorkspaceModel workspace;
 
-    @OneToMany(mappedBy = "column", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<TaskModel> tasks = new HashSet<>();
+    @OneToMany(
+            mappedBy = "column",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @OrderBy("position ASC")
+    private List<TaskModel> tasks = new ArrayList<>();
 }

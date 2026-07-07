@@ -30,6 +30,7 @@ public class LabelModel extends Auditable {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(nullable = false)
     private String name;
 
     private String color;
