@@ -1,7 +1,8 @@
 package com.allan.task.manager.comment;
 
-import com.allan.task.manager.comment.dto.CommentRequestDTO;
+import com.allan.task.manager.comment.dto.CommentCreateDTO;
 import com.allan.task.manager.comment.dto.CommentResponseDTO;
+import com.allan.task.manager.comment.dto.CommentUpdateDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,7 @@ public class CommentController {
             @PathVariable UUID boardId,
             @PathVariable UUID columnId,
             @PathVariable UUID taskId,
-            @RequestBody @Valid CommentRequestDTO dto,
+            @RequestBody @Valid CommentCreateDTO dto,
             @AuthenticationPrincipal Jwt jwt
     ) {
         UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
@@ -45,6 +46,32 @@ public class CommentController {
         );
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @PutMapping("/{commentId}")
+    public ResponseEntity<CommentResponseDTO> update(
+            @PathVariable UUID workspaceId,
+            @PathVariable UUID boardId,
+            @PathVariable UUID columnId,
+            @PathVariable UUID taskId,
+            @PathVariable UUID commentId,
+            @RequestBody @Valid CommentUpdateDTO dto,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
+
+        CommentResponseDTO response = commentService.update(
+                workspaceId,
+                boardId,
+                columnId,
+                taskId,
+                commentId,
+                dto,
+                requesterId
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasRole('ROLE_USER')")

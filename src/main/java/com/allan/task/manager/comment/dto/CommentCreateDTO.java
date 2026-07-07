@@ -2,10 +2,8 @@ package com.allan.task.manager.comment.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record CommentRequestDTO(
-
+public record CommentCreateDTO(
         @NotBlank
         String content
-
 ) {
 }

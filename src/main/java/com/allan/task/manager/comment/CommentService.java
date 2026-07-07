@@ -1,7 +1,8 @@
 package com.allan.task.manager.comment;
 
-import com.allan.task.manager.comment.dto.CommentRequestDTO;
+import com.allan.task.manager.comment.dto.CommentCreateDTO;
 import com.allan.task.manager.comment.dto.CommentResponseDTO;
+import com.allan.task.manager.comment.dto.CommentUpdateDTO;
 import com.allan.task.manager.comment.mapper.CommentMapper;
 import com.allan.task.manager.task.TaskLookupService;
 import com.allan.task.manager.task.TaskModel;
@@ -43,7 +44,7 @@ public class CommentService {
             UUID boardId,
             UUID columnId,
             UUID taskId,
-            CommentRequestDTO dto,
+            CommentCreateDTO dto,
             UUID requesterId
     ) {
         workspacePermissionService.requireMember(workspaceId, requesterId);
@@ -55,6 +56,35 @@ public class CommentService {
         comment.setContent(dto.content());
         comment.setTask(task);
         comment.setAuthor(author);
+
+        return CommentMapper.toResponse(commentRepository.save(comment));
+    }
+
+    @Transactional
+    public CommentResponseDTO update(
+            UUID workspaceId,
+            UUID boardId,
+            UUID columnId,
+            UUID taskId,
+            UUID commentId,
+            CommentUpdateDTO dto,
+            UUID requesterId
+    ) {
+        workspacePermissionService.requireMember(workspaceId, requesterId);
+
+        taskLookupService.findTaskInColumn(columnId, taskId);
+
+        CommentModel comment = commentLookupService.findCommentInTask(taskId, commentId);
+
+        boolean isAuthor = comment.getAuthor()
+                .getId()
+                .equals(requesterId);
+
+        if (!isAuthor) {
+            workspacePermissionService.requireOwner(workspaceId, requesterId);
+        }
+
+        comment.setContent(dto.content());
 
         return CommentMapper.toResponse(commentRepository.save(comment));
     }
