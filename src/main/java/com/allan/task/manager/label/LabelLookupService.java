@@ -16,13 +16,9 @@ public class LabelLookupService {
         this.labelRepository = labelRepository;
     }
 
-    public LabelModel findByIdAndBoard(UUID boardId, UUID labelId) {
+    public LabelModel findInBoard(UUID boardId, UUID labelId) {
         return labelRepository.findByIdAndBoardId(labelId, boardId)
                 .orElseThrow(() -> new LabelNotFoundException("Label not found"));
-    }
-
-    public LabelModel findInBoard(UUID boardId, UUID labelId) {
-        return findByIdAndBoard(boardId, labelId);
     }
 
     public List<LabelModel> findAllInBoard(UUID boardId, Set<UUID> labelIds) {

@@ -4,6 +4,7 @@ import com.allan.task.manager.board.BoardLookupService;
 import com.allan.task.manager.board.BoardModel;
 import com.allan.task.manager.label.dto.LabelCreateDTO;
 import com.allan.task.manager.label.dto.LabelResponseDTO;
+import com.allan.task.manager.label.dto.LabelUpdateDTO;
 import com.allan.task.manager.label.mapper.LabelMapper;
 import com.allan.task.manager.workspace.WorkspacePermissionService;
 import org.springframework.stereotype.Service;
@@ -11,20 +12,22 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
-
 @Service
 public class LabelService {
 
     private final LabelRepository labelRepository;
+    private final LabelLookupService labelLookupService;
     private final BoardLookupService boardLookupService;
     private final WorkspacePermissionService workspacePermissionService;
 
     public LabelService(
             LabelRepository labelRepository,
+            LabelLookupService labelLookupService,
             BoardLookupService boardLookupService,
             WorkspacePermissionService workspacePermissionService
     ) {
         this.labelRepository = labelRepository;
+        this.labelLookupService = labelLookupService;
         this.boardLookupService = boardLookupService;
         this.workspacePermissionService = workspacePermissionService;
     }
@@ -45,9 +48,27 @@ public class LabelService {
         label.setColor(dto.color());
         label.setBoard(board);
 
-        LabelModel saved = labelRepository.save(label);
+        return LabelMapper.toResponse(labelRepository.save(label));
+    }
 
-        return LabelMapper.toResponse(saved);
+    @Transactional
+    public LabelResponseDTO update(
+            UUID workspaceId,
+            UUID boardId,
+            UUID labelId,
+            LabelUpdateDTO dto,
+            UUID requesterId
+    ) {
+        workspacePermissionService.requireOwnerOrAdmin(workspaceId, requesterId);
+
+        boardLookupService.findInWorkspace(workspaceId, boardId);
+
+        LabelModel label = labelLookupService.findInBoard(boardId, labelId);
+
+        label.setName(dto.name());
+        label.setColor(dto.color());
+
+        return LabelMapper.toResponse(labelRepository.save(label));
     }
 
     @Transactional(readOnly = true)
@@ -61,9 +82,7 @@ public class LabelService {
 
         boardLookupService.findInWorkspace(workspaceId, boardId);
 
-        LabelModel label = labelRepository
-                .findByIdAndBoardId(labelId, boardId)
-                .orElseThrow(() -> new RuntimeException("Label not found"));
+        LabelModel label = labelLookupService.findInBoard(boardId, labelId);
 
         return LabelMapper.toResponse(label);
     }
@@ -81,5 +100,21 @@ public class LabelService {
         return LabelMapper.toResponseList(
                 labelRepository.findByBoardId(boardId)
         );
+    }
+
+    @Transactional
+    public void delete(
+            UUID workspaceId,
+            UUID boardId,
+            UUID labelId,
+            UUID requesterId
+    ) {
+        workspacePermissionService.requireOwnerOrAdmin(workspaceId, requesterId);
+
+        boardLookupService.findInWorkspace(workspaceId, boardId);
+
+        LabelModel label = labelLookupService.findInBoard(boardId, labelId);
+
+        labelRepository.delete(label);
     }
 }
