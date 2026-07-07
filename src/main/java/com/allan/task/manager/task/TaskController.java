@@ -3,6 +3,7 @@ package com.allan.task.manager.task;
 import com.allan.task.manager.task.dto.TaskCreateDTO;
 import com.allan.task.manager.task.dto.TaskMoveDTO;
 import com.allan.task.manager.task.dto.TaskResponseDTO;
+import com.allan.task.manager.task.dto.TaskUpdateDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,6 +48,30 @@ public class TaskController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
+    }
+
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @PutMapping("/{taskId}")
+    public ResponseEntity<TaskResponseDTO> update(
+            @PathVariable UUID workspaceId,
+            @PathVariable UUID boardId,
+            @PathVariable UUID columnId,
+            @PathVariable UUID taskId,
+            @RequestBody @Valid TaskUpdateDTO dto,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
+
+        TaskResponseDTO response = taskService.update(
+                workspaceId,
+                boardId,
+                columnId,
+                taskId,
+                dto,
+                requesterId
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasRole('ROLE_USER')")

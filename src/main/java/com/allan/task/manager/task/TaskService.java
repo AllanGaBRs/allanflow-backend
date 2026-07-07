@@ -7,6 +7,7 @@ import com.allan.task.manager.label.LabelModel;
 import com.allan.task.manager.task.dto.TaskCreateDTO;
 import com.allan.task.manager.task.dto.TaskMoveDTO;
 import com.allan.task.manager.task.dto.TaskResponseDTO;
+import com.allan.task.manager.task.dto.TaskUpdateDTO;
 import com.allan.task.manager.task.mapper.TaskMapper;
 import com.allan.task.manager.user.UserLookupService;
 import com.allan.task.manager.user.UserModel;
@@ -90,6 +91,47 @@ public class TaskService {
         TaskModel saved = taskRepository.save(task);
 
         return TaskMapper.toResponse(saved);
+    }
+
+    @Transactional
+    public TaskResponseDTO update(
+            UUID workspaceId,
+            UUID boardId,
+            UUID columnId,
+            UUID taskId,
+            TaskUpdateDTO dto,
+            UUID requesterId
+    ) {
+        workspacePermissionService.requireOwnerOrAdmin(workspaceId, requesterId);
+
+        columnLookupService.findColumnInBoard(workspaceId, boardId, columnId);
+
+        TaskModel task = taskLookupService.findTaskInColumn(columnId, taskId);
+
+        task.setTitle(dto.title());
+        task.setDescription(dto.description());
+        task.setPriority(dto.priority());
+        task.setDueDate(dto.dueDate());
+
+        if (dto.assignees() != null) {
+            task.setAssignees(
+                    new HashSet<>(
+                            userLookupService.findAllByIds(dto.assignees())
+                    )
+            );
+        }
+
+        if (dto.labels() != null) {
+            task.setLabels(
+                    new HashSet<>(
+                            labelLookupService.findAllInBoard(boardId, dto.labels())
+                    )
+            );
+        }
+
+        return TaskMapper.toResponse(
+                taskRepository.save(task)
+        );
     }
 
     @Transactional(readOnly = true)
