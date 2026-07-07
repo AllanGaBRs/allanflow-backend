@@ -25,4 +25,9 @@ public interface TaskRepository extends JpaRepository<TaskModel, UUID> {
     Integer findMaxPositionByColumnId(UUID columnId);
 
     List<TaskModel> findAllByColumnIdOrderByPositionAsc(UUID columnId);
+
+    Optional<TaskModel> findByIdAndWorkspaceId(
+            UUID taskId,
+            UUID workspaceId
+    );
 }
