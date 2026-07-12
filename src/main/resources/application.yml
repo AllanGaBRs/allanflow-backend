@@ -13,3 +13,12 @@ security:
 
 cors:
   origins: ${CORS_ORIGINS:http://localhost:3000,http://localhost:5173}
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    persist-authorization: true

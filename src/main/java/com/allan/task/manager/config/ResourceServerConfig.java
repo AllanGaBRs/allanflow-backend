@@ -48,6 +48,7 @@ public class ResourceServerConfig {
         http.csrf(csrf -> csrf.disable());
 
         http.authorizeHttpRequests(authorize -> authorize
+                .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .anyRequest().permitAll()
         );
 
@@ -66,6 +67,13 @@ public class ResourceServerConfig {
     @Bean
     public BearerTokenResolver bearerTokenResolver() {
         return (HttpServletRequest request) -> {
+            String requestPath = request.getRequestURI();
+            if (requestPath.equals("/swagger-ui.html")
+                    || requestPath.startsWith("/swagger-ui/")
+                    || requestPath.startsWith("/v3/api-docs")) {
+                return null;
+            }
+
             String authHeader = request.getHeader("Authorization");
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 return authHeader.substring(7);
