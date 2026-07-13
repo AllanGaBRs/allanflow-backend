@@ -4,6 +4,7 @@ import com.allan.task.manager.user.dto.UserChangePasswordDTO;
 import com.allan.task.manager.user.dto.UserRegisterDTO;
 import com.allan.task.manager.user.dto.UserResponseDTO;
 import com.allan.task.manager.user.dto.UserUpdateDTO;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,7 @@ public class UserController {
     }
 
     @PostMapping
+    @SecurityRequirements
     public ResponseEntity<UserResponseDTO> register(@Valid @RequestBody UserRegisterDTO dto) {
         UserResponseDTO response = userService.register(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
