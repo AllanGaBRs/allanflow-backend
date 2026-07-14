@@ -2,6 +2,7 @@ package com.allan.task.manager.client;
 
 import com.allan.task.manager.client.dto.ClientCreateDTO;
 import com.allan.task.manager.client.dto.ClientResponseDTO;
+import com.allan.task.manager.client.dto.ClientUpdateDTO;
 import com.allan.task.manager.client.exceptions.DuplicateClientException;
 import com.allan.task.manager.client.mapper.ClientMapper;
 import com.allan.task.manager.workspace.WorkspaceLookupService;
@@ -32,6 +33,7 @@ public class ClientService {
         this.workspacePermissionService = workspacePermissionService;
         this.workspaceLookupService = workspaceLookupService;
     }
+
     @Transactional
     public ClientResponseDTO create(
             UUID workspaceId,
@@ -69,6 +71,47 @@ public class ClientService {
 
         return ClientMapper.toResponse(client);
    }
+
+    @Transactional
+    public ClientResponseDTO update(
+            UUID workspaceId,
+            UUID clientId,
+            ClientUpdateDTO dto,
+            UUID requesterId
+    ) {
+        workspacePermissionService.requireMember(workspaceId, requesterId);
+
+        WorkspaceModel workspace = workspaceLookupService.findActiveById(workspaceId);
+
+        ClientModel client = clientLookupService.findInWorkspace(
+                workspaceId,
+                clientId
+        );
+
+        if (!dto.forceUpdate()) {
+            List<ClientModel> duplicates =
+                    clientRepository.findPossibleDuplicatesExcludingClient(
+                            workspace,
+                            clientId,
+                            dto.name(),
+                            dto.email(),
+                            dto.phone()
+                    );
+
+            if (!duplicates.isEmpty()) {
+                throw new DuplicateClientException(
+                        ClientMapper.toResponseList(duplicates)
+                );
+            }
+        }
+
+        client.setName(dto.name());
+        client.setEmail(dto.email());
+        client.setPhone(dto.phone());
+        client.setCompany(dto.company());
+
+        return ClientMapper.toResponse(client);
+    }
 
     @Transactional(readOnly = true)
     public ClientResponseDTO findById(
