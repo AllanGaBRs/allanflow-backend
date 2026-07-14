@@ -211,14 +211,85 @@ public class Application {
              * CLIENT
              */
 
-            ClientModel client = new ClientModel();
+            ClientModel client1 = new ClientModel();
+            client1.setName("OpenAI");
+            client1.setEmail("contact@openai.com");
+            client1.setPhone("44999990001");
+            client1.setCompany("OpenAI");
+            client1.setWorkspace(workspace);
+            clientRepository.save(client1);
 
-            client.setName("OpenAI");
-            client.setEmail("contact@openai.com");
-            client.setCompany("OpenAI");
-            client.setWorkspace(workspace);
+            ClientModel client2 = new ClientModel();
+            client2.setName("Google");
+            client2.setEmail("contact@google.com");
+            client2.setPhone("44999990002");
+            client2.setCompany("Google");
+            client2.setWorkspace(workspace);
+            clientRepository.save(client2);
 
-            clientRepository.save(client);
+            ClientModel client3 = new ClientModel();
+            client3.setName("Microsoft");
+            client3.setEmail("contact@microsoft.com");
+            client3.setPhone("44999990003");
+            client3.setCompany("Microsoft");
+            client3.setWorkspace(workspace);
+            clientRepository.save(client3);
+
+            ClientModel client4 = new ClientModel();
+            client4.setName("Amazon");
+            client4.setEmail("contact@amazon.com");
+            client4.setPhone("44999990004");
+            client4.setCompany("Amazon");
+            client4.setWorkspace(workspace);
+            clientRepository.save(client4);
+
+            ClientModel client5 = new ClientModel();
+            client5.setName("Netflix");
+            client5.setEmail("contact@netflix.com");
+            client5.setPhone("44999990005");
+            client5.setCompany("Netflix");
+            client5.setWorkspace(workspace);
+            clientRepository.save(client5);
+
+            ClientModel client6 = new ClientModel();
+            client6.setName("Spotify");
+            client6.setEmail("contact@spotify.com");
+            client6.setPhone("44999990006");
+            client6.setCompany("Spotify");
+            client6.setWorkspace(workspace);
+            clientRepository.save(client6);
+
+            ClientModel client7 = new ClientModel();
+            client7.setName("Tesla");
+            client7.setEmail("contact@tesla.com");
+            client7.setPhone("44999990007");
+            client7.setCompany("Tesla");
+            client7.setWorkspace(workspace);
+            clientRepository.save(client7);
+
+            ClientModel client8 = new ClientModel();
+            client8.setName("Adobe");
+            client8.setEmail("contact@adobe.com");
+            client8.setPhone("44999990008");
+            client8.setCompany("Adobe");
+            client8.setWorkspace(workspace);
+            clientRepository.save(client8);
+
+            ClientModel client9 = new ClientModel();
+            client9.setName("GitHub");
+            client9.setEmail("contact@github.com");
+            client9.setPhone("44999990009");
+            client9.setCompany("GitHub");
+            client9.setWorkspace(workspace);
+            clientRepository.save(client9);
+
+            ClientModel client10 = new ClientModel();
+            client10.setName("Cloudflare");
+            client10.setEmail("contact@cloudflare.com");
+            client10.setPhone("44999990010");
+            client10.setCompany("Cloudflare");
+            client10.setWorkspace(workspace);
+            clientRepository.save(client10);
 
 
             /*
@@ -235,7 +306,7 @@ public class Application {
                     .priority(TaskModel.Priority.HIGH)
                     .labels(new HashSet<>(Set.of(feature)))
                     .assignees(new HashSet<>(Set.of(allan)))
-                    .client(client)
+                    .client(client1)
                     .build();
 
 

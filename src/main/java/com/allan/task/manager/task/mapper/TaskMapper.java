@@ -1,5 +1,6 @@
 package com.allan.task.manager.task.mapper;
 
+import com.allan.task.manager.client.mapper.ClientMapper;
 import com.allan.task.manager.label.mapper.LabelMapper;
 import com.allan.task.manager.task.TaskModel;
 import com.allan.task.manager.task.dto.TaskResponseDTO;
@@ -33,7 +34,11 @@ public class TaskMapper {
 
                         task.getAssignees().stream()
                                 .map(UserMapper::toResponse)
-                                .collect(java.util.stream.Collectors.toSet())
+                                .collect(java.util.stream.Collectors.toSet()),
+
+                        task.getClient() != null
+                                ? ClientMapper.toResponse(task.getClient())
+                                : null
                 );
         }
 

@@ -21,6 +21,8 @@ public record TaskUpdateDTO(
 
         Set<UUID> labels,
 
-        Set<UUID> assignees
+        Set<UUID> assignees,
+
+        UUID client
 ) {
 }

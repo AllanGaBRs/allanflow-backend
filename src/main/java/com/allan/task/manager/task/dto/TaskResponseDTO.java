@@ -1,5 +1,6 @@
 package com.allan.task.manager.task.dto;
 
+import com.allan.task.manager.client.dto.ClientResponseDTO;
 import com.allan.task.manager.label.dto.LabelResponseDTO;
 import com.allan.task.manager.task.TaskModel;
 import com.allan.task.manager.user.dto.UserResponseDTO;
@@ -26,6 +27,8 @@ public record TaskResponseDTO(
         LocalDateTime dueDate,
 
         Set<LabelResponseDTO> labels,
-        Set<UserResponseDTO> assignees
+        Set<UserResponseDTO> assignees,
+
+        ClientResponseDTO client
 ) {
 }

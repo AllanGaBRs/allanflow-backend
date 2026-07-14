@@ -1,5 +1,7 @@
 package com.allan.task.manager.task;
 
+import com.allan.task.manager.client.ClientLookupService;
+import com.allan.task.manager.client.ClientModel;
 import com.allan.task.manager.column.ColumnLookupService;
 import com.allan.task.manager.column.ColumnModel;
 import com.allan.task.manager.label.LabelLookupService;
@@ -26,6 +28,7 @@ public class TaskService {
     private final UserLookupService userLookupService;
     private final LabelLookupService labelLookupService;
     private final ColumnLookupService columnLookupService;
+    private final ClientLookupService clientLookupService;
     private final WorkspacePermissionService workspacePermissionService;
     private final TaskLookupService taskLookupService;
 
@@ -34,6 +37,7 @@ public class TaskService {
             UserLookupService userLookupService,
             LabelLookupService labelLookupService,
             ColumnLookupService columnLookupService,
+            ClientLookupService clientLookupService,
             WorkspacePermissionService workspacePermissionService,
             TaskLookupService taskLookupService
     ) {
@@ -41,6 +45,7 @@ public class TaskService {
         this.userLookupService = userLookupService;
         this.labelLookupService = labelLookupService;
         this.columnLookupService = columnLookupService;
+        this.clientLookupService = clientLookupService;
         this.workspacePermissionService = workspacePermissionService;
         this.taskLookupService = taskLookupService;
     }
@@ -64,6 +69,10 @@ public class TaskService {
         List<LabelModel> labels =
                 labelLookupService.findAllInBoard(boardId, dto.labels());
 
+        ClientModel client = dto.client() != null
+                ? clientLookupService.findInWorkspace(workspaceId, dto.client())
+                : null;
+
         TaskModel task = new TaskModel();
 
         task.setTitle(dto.title());
@@ -84,7 +93,7 @@ public class TaskService {
         task.setDueDate(dto.dueDate());
 
         task.setArchived(false);
-
+        task.setClient(client);
         task.setAssignees(new HashSet<>(assignees));
         task.setLabels(new HashSet<>(labels));
 
@@ -105,6 +114,10 @@ public class TaskService {
         workspacePermissionService.requireOwnerOrAdmin(workspaceId, requesterId);
 
         columnLookupService.findColumnInBoard(workspaceId, boardId, columnId);
+
+        ClientModel client = dto.client() != null
+                ? clientLookupService.findInWorkspace(workspaceId, dto.client())
+                : null;
 
         TaskModel task = taskLookupService.findTaskInColumn(columnId, taskId);
 
@@ -128,6 +141,8 @@ public class TaskService {
                     )
             );
         }
+
+        task.setClient(client);
 
         return TaskMapper.toResponse(
                 taskRepository.save(task)
