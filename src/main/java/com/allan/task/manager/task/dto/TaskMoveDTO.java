@@ -9,6 +9,7 @@ public record TaskMoveDTO(
         @NotNull
         UUID targetColumnId,
 
+        @NotNull
         @PositiveOrZero
         Integer targetPosition
 ) {}

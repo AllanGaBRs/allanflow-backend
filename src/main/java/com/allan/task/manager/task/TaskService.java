@@ -200,7 +200,6 @@ public class TaskService {
         return TaskMapper.toResponseList(tasks);
     }
 
-    //TODO: Implement task reordering when drag-and-drop support is added.
     @Transactional
     public TaskResponseDTO moveTask(
             UUID workspaceId,
@@ -209,25 +208,51 @@ public class TaskService {
             UUID taskId,
             TaskMoveDTO dto,
             UUID requesterId
-    ){
+    ) {
         workspacePermissionService.requireMember(workspaceId, requesterId);
 
         columnLookupService.findColumnInBoard(workspaceId, boardId, sourceColumnId);
-        ColumnModel targetColumn = columnLookupService.findColumnInBoard(workspaceId, boardId, dto.targetColumnId());
+
+        ColumnModel targetColumn = columnLookupService.findColumnInBoard(
+                workspaceId,
+                boardId,
+                dto.targetColumnId()
+        );
 
         TaskModel task = taskLookupService.findTaskInColumn(sourceColumnId, taskId);
 
-        //TODO: Remove this early return when task reordering within the same column is supported.
-        if (sourceColumnId.equals(dto.targetColumnId())) {
-            return TaskMapper.toResponse(task);
-        }
+        boolean sameColumn = sourceColumnId.equals(dto.targetColumnId());
+
+        List<TaskModel> sourceTasks =
+                taskRepository.findAllByColumnIdOrderByPositionAsc(sourceColumnId);
+
+        List<TaskModel> targetTasks = sameColumn
+                ? sourceTasks
+                : taskRepository.findAllByColumnIdOrderByPositionAsc(dto.targetColumnId());
+
+        sourceTasks.removeIf(currentTask -> currentTask.getId().equals(taskId));
+
+        int targetPosition = Math.min(dto.targetPosition(), targetTasks.size());
 
         task.setColumn(targetColumn);
-        task.setPosition(
-                taskLookupService.resolvePosition(dto.targetColumnId())
-        );
+        targetTasks.add(targetPosition, task);
 
-        task = taskRepository.save(task);
+        for (int position = 0; position < sourceTasks.size(); position++) {
+            sourceTasks.get(position).setPosition(position);
+        }
+
+        if (!sameColumn) {
+            for (int position = 0; position < targetTasks.size(); position++) {
+                targetTasks.get(position).setPosition(position);
+            }
+        }
+
+        taskRepository.saveAll(sourceTasks);
+
+        if (!sameColumn) {
+            taskRepository.saveAll(targetTasks);
+        }
+
         return TaskMapper.toResponse(task);
     }
 }
