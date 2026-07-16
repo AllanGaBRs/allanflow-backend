@@ -1,6 +1,8 @@
 package com.allan.task.manager.board.exceptions;
 
-public class BoardAccessDeniedException extends RuntimeException {
+import com.allan.task.manager.workspace.exception.WorkspaceAccessDeniedException;
+
+public class BoardAccessDeniedException extends WorkspaceAccessDeniedException {
     public BoardAccessDeniedException(String message) {
         super(message);
     }

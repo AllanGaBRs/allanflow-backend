@@ -1,5 +1,6 @@
 package com.allan.task.manager.board;
 
+import com.allan.task.manager.user.UserModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -61,4 +62,23 @@ public interface BoardRepository extends JpaRepository<BoardModel, UUID> {
             UUID workspaceId,
             UUID userId
     );
+
+    @Query("""
+        SELECT m
+        FROM BoardModel b
+        JOIN b.members m
+        WHERE b.id = :boardId
+          AND b.workspace.id = :workspaceId
+        ORDER BY m.name ASC
+    """)
+    List<UserModel> findMembers(UUID workspaceId, UUID boardId);
+
+    @Query("""
+        SELECT b
+        FROM BoardModel b
+        LEFT JOIN FETCH b.members
+        WHERE b.id = :boardId
+          AND b.workspace.id = :workspaceId
+    """)
+    Optional<BoardModel> findByIdAndWorkspaceIdWithMembers(UUID boardId, UUID workspaceId);
 }

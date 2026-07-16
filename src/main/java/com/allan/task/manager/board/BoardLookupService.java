@@ -23,4 +23,9 @@ public class BoardLookupService {
         return boardRepository.findByIdAndWorkspaceIdWithColumns(boardId, workspaceId)
                 .orElseThrow(() -> new BoardNotFoundException("Board not found"));
     }
+
+    public BoardModel findInWorkspaceWithMembers(UUID workspaceId, UUID boardId) {
+        return boardRepository.findByIdAndWorkspaceIdWithMembers(boardId, workspaceId)
+                .orElseThrow(() -> new BoardNotFoundException("Board not found"));
+    }
 }
