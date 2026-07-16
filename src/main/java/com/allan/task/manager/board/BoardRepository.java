@@ -42,4 +42,23 @@ public interface BoardRepository extends JpaRepository<BoardModel, UUID> {
             """)
     Optional<BoardModel> findByIdAndWorkspaceIdWithColumns(UUID id, UUID workspaceId);
 
+    boolean existsByIdAndWorkspaceIdAndMembersId(
+            UUID boardId,
+            UUID workspaceId,
+            UUID userId
+    );
+
+    @Query("""
+        SELECT DISTINCT b
+        FROM BoardModel b
+        JOIN b.members m
+        LEFT JOIN FETCH b.columns c
+        WHERE b.workspace.id = :workspaceId
+        AND m.id = :userId
+        ORDER BY b.name ASC
+        """)
+    List<BoardModel> findByWorkspaceIdAndMemberIdWithColumns(
+            UUID workspaceId,
+            UUID userId
+    );
 }

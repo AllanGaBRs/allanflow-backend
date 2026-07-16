@@ -5,6 +5,7 @@ import com.allan.task.manager.board.dto.BoardResponseDTO;
 import com.allan.task.manager.board.dto.BoardUpdateDTO;
 import com.allan.task.manager.board.exceptions.BoardAlreadyExistsException;
 import com.allan.task.manager.board.mapper.BoardMapper;
+import com.allan.task.manager.membership.MembershipModel;
 import com.allan.task.manager.workspace.WorkspaceModel;
 import com.allan.task.manager.workspace.WorkspaceLookupService;
 import com.allan.task.manager.workspace.WorkspacePermissionService;
@@ -56,10 +57,14 @@ public class BoardService {
 
     @Transactional(readOnly = true)
     public List<BoardResponseDTO> findAll(UUID workspaceId, UUID requesterId) {
-        workspacePermissionService.requireMember(workspaceId, requesterId);
+        MembershipModel membership = workspacePermissionService.requireMember(workspaceId, requesterId);
         workspaceLookupService.findActiveById(workspaceId);
 
-        return BoardMapper.toResponseList(boardRepository.findByWorkspaceIdWithColumns(workspaceId));
+        List<BoardModel> boards = isWorkspaceOwnerOrAdmin(membership)
+                ? boardRepository.findByWorkspaceIdWithColumns(workspaceId)
+                : boardRepository.findByWorkspaceIdAndMemberIdWithColumns(workspaceId, requesterId);
+
+        return BoardMapper.toResponseList(boards);
     }
 
     @Transactional(readOnly = true)
@@ -106,5 +111,10 @@ public class BoardService {
         BoardModel board = boardLookupService.findInWorkspaceWithColumns(workspaceId, boardId);
 
         boardRepository.delete(board);
+    }
+
+    private boolean isWorkspaceOwnerOrAdmin(MembershipModel membership) {
+        return membership.getRole() == MembershipModel.MembershipRole.OWNER
+                || membership.getRole() == MembershipModel.MembershipRole.ADMIN;
     }
 }
