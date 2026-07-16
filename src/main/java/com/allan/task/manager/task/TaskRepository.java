@@ -12,19 +12,31 @@ import java.util.UUID;
 @Repository
 public interface TaskRepository extends JpaRepository<TaskModel, UUID> {
 
-    Optional<TaskModel> findByIdAndColumnId(
+    Optional<TaskModel> findByIdAndWorkspaceIdAndBoardIdAndColumnId(
             UUID taskId,
+            UUID workspaceId,
+            UUID boardId,
             UUID columnId
     );
 
     @Query("""
         SELECT COALESCE(MAX(t.position), 0)
         FROM TaskModel t
-        WHERE t.column.id = :columnId
+        WHERE t.workspace.id = :workspaceId
+          AND t.board.id = :boardId
+          AND t.column.id = :columnId
     """)
-    Integer findMaxPositionByColumnId(UUID columnId);
+    Integer findMaxPositionByWorkspaceIdAndBoardIdAndColumnId(
+            UUID workspaceId,
+            UUID boardId,
+            UUID columnId
+    );
 
-    List<TaskModel> findAllByColumnIdOrderByPositionAsc(UUID columnId);
+    List<TaskModel> findAllByWorkspaceIdAndBoardIdAndColumnIdOrderByPositionAsc(
+            UUID workspaceId,
+            UUID boardId,
+            UUID columnId
+    );
 
     Optional<TaskModel> findByIdAndWorkspaceId(
             UUID taskId,

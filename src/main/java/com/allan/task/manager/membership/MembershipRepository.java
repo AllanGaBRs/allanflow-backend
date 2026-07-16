@@ -1,11 +1,13 @@
 package com.allan.task.manager.membership;
 
+import com.allan.task.manager.user.UserModel;
 import com.allan.task.manager.workspace.WorkspaceModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public interface MembershipRepository extends JpaRepository<MembershipModel, UUID> {
@@ -36,4 +38,17 @@ public interface MembershipRepository extends JpaRepository<MembershipModel, UUI
     boolean existsByUserIdAndWorkspaceId(UUID userId, UUID workspaceId);
 
     List<MembershipModel> findByWorkspaceId(UUID workspaceId);
+
+    @Query("""
+        SELECT m.user
+        FROM MembershipModel m
+        WHERE m.workspace.id = :workspaceId
+          AND m.workspace.isActive = true
+          AND m.user.id IN :userIds
+          AND m.user.isActive = true
+    """)
+    List<UserModel> findActiveUsersInActiveWorkspaceByIds(
+            UUID workspaceId,
+            Set<UUID> userIds
+    );
 }

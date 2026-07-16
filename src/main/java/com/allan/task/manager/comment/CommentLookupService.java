@@ -15,17 +15,16 @@ public class CommentLookupService {
         this.commentRepository = commentRepository;
     }
 
-    public CommentModel findCommentInTask(
-            UUID taskId,
-            UUID commentId
-    ) {
-        return commentRepository.findByIdAndTaskId(commentId, taskId)
+    public CommentModel findCommentInTask(UUID workspaceId, UUID boardId, UUID columnId, UUID taskId, UUID commentId) {
+        return commentRepository.findByIdAndTaskIdAndTaskColumnIdAndTaskBoardIdAndTaskWorkspaceId(
+                commentId, taskId, columnId, boardId, workspaceId
+        )
                 .orElseThrow(() -> new CommentNotFoundException("Comment not found"));
     }
 
-    public List<CommentModel> findAllByTask(
-            UUID taskId
-    ) {
-        return commentRepository.findAllByTaskIdOrderByCreatedAtAsc(taskId);
+    public List<CommentModel> findAllByTask(UUID workspaceId, UUID boardId, UUID columnId, UUID taskId) {
+        return commentRepository.findAllByTaskIdAndTaskColumnIdAndTaskBoardIdAndTaskWorkspaceIdOrderByCreatedAtAsc(
+                taskId, columnId, boardId, workspaceId
+        );
     }
 }

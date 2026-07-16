@@ -49,7 +49,7 @@ public class CommentService {
     ) {
         workspacePermissionService.requireMember(workspaceId, requesterId);
 
-        TaskModel task = taskLookupService.findTaskInColumn(columnId, taskId);
+        TaskModel task = taskLookupService.findTaskInColumn(workspaceId, boardId, columnId, taskId);
         UserModel author = userLookupService.findActiveById(requesterId);
 
         CommentModel comment = new CommentModel();
@@ -72,9 +72,9 @@ public class CommentService {
     ) {
         workspacePermissionService.requireMember(workspaceId, requesterId);
 
-        taskLookupService.findTaskInColumn(columnId, taskId);
+        taskLookupService.findTaskInColumn(workspaceId, boardId, columnId, taskId);
 
-        CommentModel comment = commentLookupService.findCommentInTask(taskId, commentId);
+        CommentModel comment = commentLookupService.findCommentInTask(workspaceId, boardId, columnId, taskId, commentId);
 
         boolean isAuthor = comment.getAuthor()
                 .getId()
@@ -100,9 +100,9 @@ public class CommentService {
     ) {
         workspacePermissionService.requireMember(workspaceId, requesterId);
 
-        taskLookupService.findTaskInColumn(columnId, taskId);
+        taskLookupService.findTaskInColumn(workspaceId, boardId, columnId, taskId);
 
-        CommentModel comment = commentLookupService.findCommentInTask(taskId, commentId);
+        CommentModel comment = commentLookupService.findCommentInTask(workspaceId, boardId, columnId, taskId, commentId);
 
         return CommentMapper.toResponse(comment);
     }
@@ -117,9 +117,9 @@ public class CommentService {
     ) {
         workspacePermissionService.requireMember(workspaceId, requesterId);
 
-        taskLookupService.findTaskInColumn(columnId, taskId);
+        taskLookupService.findTaskInColumn(workspaceId, boardId, columnId, taskId);
 
-        return commentLookupService.findAllByTask(taskId)
+        return commentLookupService.findAllByTask(workspaceId, boardId, columnId, taskId)
                 .stream()
                 .map(CommentMapper::toResponse)
                 .toList();
@@ -136,9 +136,9 @@ public class CommentService {
     ) {
         workspacePermissionService.requireMember(workspaceId, requesterId);
 
-        TaskModel task = taskLookupService.findTaskInColumn(columnId, taskId);
+        TaskModel task = taskLookupService.findTaskInColumn(workspaceId, boardId, columnId, taskId);
 
-        CommentModel comment = commentLookupService.findCommentInTask(taskId, commentId);
+        CommentModel comment = commentLookupService.findCommentInTask(workspaceId, boardId, columnId, taskId, commentId);
 
         boolean isTaskOwner = task.getAssignees()
                 .stream()

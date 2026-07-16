@@ -15,27 +15,20 @@ public class TaskLookupService {
         this.taskRepository = taskRepository;
     }
 
-    public Integer resolvePosition(UUID columnId) {
-        return taskRepository.findMaxPositionByColumnId(columnId) + 1;
+    public Integer resolvePosition(UUID workspaceId, UUID boardId, UUID columnId) {
+        return taskRepository.findMaxPositionByWorkspaceIdAndBoardIdAndColumnId(
+                workspaceId, boardId, columnId
+        ) + 1;
     }
 
-    public TaskModel findTaskInColumn(
-            UUID columnId,
-            UUID taskId
-    ) {
-        return taskRepository.findByIdAndColumnId(taskId, columnId)
-                .orElseThrow(() ->
-                        new TaskNotFoundException("Task not found")
-                );
+    public TaskModel findTaskInColumn(UUID workspaceId, UUID boardId, UUID columnId, UUID taskId) {
+        return taskRepository.findByIdAndWorkspaceIdAndBoardIdAndColumnId(
+                taskId, workspaceId, boardId, columnId
+        ).orElseThrow(() -> new TaskNotFoundException("Task not found"));
     }
 
-    public TaskModel findTaskInWorkspace(
-            UUID workspaceId,
-            UUID taskId
-    ) {
+    public TaskModel findTaskInWorkspace(UUID workspaceId, UUID taskId) {
         return taskRepository.findByIdAndWorkspaceId(taskId, workspaceId)
-                .orElseThrow(() ->
-                        new TaskNotFoundException("Task not found")
-                );
+                .orElseThrow(() -> new TaskNotFoundException("Task not found"));
     }
 }

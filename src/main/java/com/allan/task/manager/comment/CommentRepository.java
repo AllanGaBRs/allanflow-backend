@@ -8,12 +8,18 @@ import java.util.UUID;
 
 public interface CommentRepository extends JpaRepository<CommentModel, UUID> {
 
-    List<CommentModel> findAllByTaskIdOrderByCreatedAtAsc(
-            UUID taskId
+    List<CommentModel> findAllByTaskIdAndTaskColumnIdAndTaskBoardIdAndTaskWorkspaceIdOrderByCreatedAtAsc(
+            UUID taskId,
+            UUID columnId,
+            UUID boardId,
+            UUID workspaceId
     );
 
-    Optional<CommentModel> findByIdAndTaskId(
+    Optional<CommentModel> findByIdAndTaskIdAndTaskColumnIdAndTaskBoardIdAndTaskWorkspaceId(
             UUID commentId,
-            UUID taskId
+            UUID taskId,
+            UUID columnId,
+            UUID boardId,
+            UUID workspaceId
     );
 }

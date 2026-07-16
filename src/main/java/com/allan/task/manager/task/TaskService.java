@@ -6,6 +6,7 @@ import com.allan.task.manager.column.ColumnLookupService;
 import com.allan.task.manager.column.ColumnModel;
 import com.allan.task.manager.label.LabelLookupService;
 import com.allan.task.manager.label.LabelModel;
+import com.allan.task.manager.membership.MembershipLookupService;
 import com.allan.task.manager.task.dto.TaskCreateDTO;
 import com.allan.task.manager.task.dto.TaskMoveDTO;
 import com.allan.task.manager.task.dto.TaskResponseDTO;
@@ -25,7 +26,7 @@ import java.util.UUID;
 public class TaskService {
 
     private final TaskRepository taskRepository;
-    private final UserLookupService userLookupService;
+    private final MembershipLookupService membershipLookupService;
     private final LabelLookupService labelLookupService;
     private final ColumnLookupService columnLookupService;
     private final ClientLookupService clientLookupService;
@@ -34,7 +35,7 @@ public class TaskService {
 
     public TaskService(
             TaskRepository taskRepository,
-            UserLookupService userLookupService,
+            MembershipLookupService membershipLookupService,
             LabelLookupService labelLookupService,
             ColumnLookupService columnLookupService,
             ClientLookupService clientLookupService,
@@ -42,7 +43,7 @@ public class TaskService {
             TaskLookupService taskLookupService
     ) {
         this.taskRepository = taskRepository;
-        this.userLookupService = userLookupService;
+        this.membershipLookupService = membershipLookupService;
         this.labelLookupService = labelLookupService;
         this.columnLookupService = columnLookupService;
         this.clientLookupService = clientLookupService;
@@ -64,10 +65,13 @@ public class TaskService {
                 columnLookupService.findColumnInBoard(workspaceId, boardId, columnId);
 
         List<UserModel> assignees =
-                userLookupService.findAllByIds(dto.assignees());
+                membershipLookupService.findActiveUsersInWorkspaceByIds(
+                        workspaceId,
+                        dto.assignees()
+                );
 
         List<LabelModel> labels =
-                labelLookupService.findAllInBoard(boardId, dto.labels());
+                labelLookupService.findAllInBoard(workspaceId, boardId, dto.labels());
 
         ClientModel client = dto.client() != null
                 ? clientLookupService.findInWorkspace(workspaceId, dto.client())
@@ -82,7 +86,7 @@ public class TaskService {
         task.setBoard(column.getBoard());
         task.setColumn(column);
 
-        task.setPosition(taskLookupService.resolvePosition(columnId));
+        task.setPosition(taskLookupService.resolvePosition(workspaceId, boardId, columnId));
 
         task.setPriority(
                 dto.priority() != null
@@ -119,7 +123,7 @@ public class TaskService {
                 ? clientLookupService.findInWorkspace(workspaceId, dto.client())
                 : null;
 
-        TaskModel task = taskLookupService.findTaskInColumn(columnId, taskId);
+        TaskModel task = taskLookupService.findTaskInColumn(workspaceId, boardId, columnId, taskId);
 
         task.setTitle(dto.title());
         task.setDescription(dto.description());
@@ -129,7 +133,10 @@ public class TaskService {
         if (dto.assignees() != null) {
             task.setAssignees(
                     new HashSet<>(
-                            userLookupService.findAllByIds(dto.assignees())
+                            membershipLookupService.findActiveUsersInWorkspaceByIds(
+                                    workspaceId,
+                                    dto.assignees()
+                            )
                     )
             );
         }
@@ -137,7 +144,7 @@ public class TaskService {
         if (dto.labels() != null) {
             task.setLabels(
                     new HashSet<>(
-                            labelLookupService.findAllInBoard(boardId, dto.labels())
+                            labelLookupService.findAllInBoard(workspaceId, boardId, dto.labels())
                     )
             );
         }
@@ -161,7 +168,7 @@ public class TaskService {
 
         columnLookupService.findColumnInBoard(workspaceId, boardId, columnId);
 
-        TaskModel task = taskLookupService.findTaskInColumn(columnId, taskId);
+        TaskModel task = taskLookupService.findTaskInColumn(workspaceId, boardId, columnId, taskId);
 
         return TaskMapper.toResponse(task);
     }
@@ -178,7 +185,7 @@ public class TaskService {
 
         columnLookupService.findColumnInBoard(workspaceId, boardId, columnId);
 
-        TaskModel task = taskLookupService.findTaskInColumn(columnId, taskId);
+        TaskModel task = taskLookupService.findTaskInColumn(workspaceId, boardId, columnId, taskId);
 
         taskRepository.delete(task);
     }
@@ -195,7 +202,11 @@ public class TaskService {
         columnLookupService.findColumnInBoard(workspaceId, boardId, columnId);
 
         List<TaskModel> tasks =
-                taskRepository.findAllByColumnIdOrderByPositionAsc(columnId);
+                taskRepository.findAllByWorkspaceIdAndBoardIdAndColumnIdOrderByPositionAsc(
+                        workspaceId,
+                        boardId,
+                        columnId
+                );
 
         return TaskMapper.toResponseList(tasks);
     }
@@ -209,8 +220,8 @@ public class TaskService {
             TaskMoveDTO dto,
             UUID requesterId
     ) {
-        workspacePermissionService.requireMember(workspaceId, requesterId);
 
+        workspacePermissionService.requireMember(workspaceId, requesterId);
         columnLookupService.findColumnInBoard(workspaceId, boardId, sourceColumnId);
 
         ColumnModel targetColumn = columnLookupService.findColumnInBoard(
@@ -219,16 +230,24 @@ public class TaskService {
                 dto.targetColumnId()
         );
 
-        TaskModel task = taskLookupService.findTaskInColumn(sourceColumnId, taskId);
+        TaskModel task = taskLookupService.findTaskInColumn(workspaceId, boardId, sourceColumnId, taskId);
 
         boolean sameColumn = sourceColumnId.equals(dto.targetColumnId());
 
         List<TaskModel> sourceTasks =
-                taskRepository.findAllByColumnIdOrderByPositionAsc(sourceColumnId);
+                taskRepository.findAllByWorkspaceIdAndBoardIdAndColumnIdOrderByPositionAsc(
+                        workspaceId,
+                        boardId,
+                        sourceColumnId
+                );
 
         List<TaskModel> targetTasks = sameColumn
                 ? sourceTasks
-                : taskRepository.findAllByColumnIdOrderByPositionAsc(dto.targetColumnId());
+                : taskRepository.findAllByWorkspaceIdAndBoardIdAndColumnIdOrderByPositionAsc(
+                workspaceId,
+                boardId,
+                dto.targetColumnId()
+        );
 
         sourceTasks.removeIf(currentTask -> currentTask.getId().equals(taskId));
 

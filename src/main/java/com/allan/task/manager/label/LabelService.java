@@ -63,7 +63,7 @@ public class LabelService {
 
         boardLookupService.findInWorkspace(workspaceId, boardId);
 
-        LabelModel label = labelLookupService.findInBoard(boardId, labelId);
+        LabelModel label = labelLookupService.findInBoard(workspaceId, boardId, labelId);
 
         label.setName(dto.name());
         label.setColor(dto.color());
@@ -82,7 +82,7 @@ public class LabelService {
 
         boardLookupService.findInWorkspace(workspaceId, boardId);
 
-        LabelModel label = labelLookupService.findInBoard(boardId, labelId);
+        LabelModel label = labelLookupService.findInBoard(workspaceId, boardId, labelId);
 
         return LabelMapper.toResponse(label);
     }
@@ -98,7 +98,7 @@ public class LabelService {
         boardLookupService.findInWorkspace(workspaceId, boardId);
 
         return LabelMapper.toResponseList(
-                labelRepository.findByBoardId(boardId)
+                labelRepository.findByBoardIdAndBoardWorkspaceId(boardId, workspaceId)
         );
     }
 
@@ -113,7 +113,7 @@ public class LabelService {
 
         boardLookupService.findInWorkspace(workspaceId, boardId);
 
-        LabelModel label = labelLookupService.findInBoard(boardId, labelId);
+        LabelModel label = labelLookupService.findInBoard(workspaceId, boardId, labelId);
 
         labelRepository.delete(label);
     }

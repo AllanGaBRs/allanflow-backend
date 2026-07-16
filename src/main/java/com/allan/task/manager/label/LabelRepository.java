@@ -11,12 +11,20 @@ import java.util.UUID;
 @Repository
 public interface LabelRepository extends JpaRepository<LabelModel, UUID> {
 
-    Optional<LabelModel> findByIdAndBoardId(UUID id, UUID boardId);
-
-    List<LabelModel> findByBoardId(UUID boardId);
-
-    List<LabelModel> findByBoardIdAndIdIn(
+    Optional<LabelModel> findByIdAndBoardIdAndBoardWorkspaceId(
+            UUID id,
             UUID boardId,
+            UUID workspaceId
+    );
+
+    List<LabelModel> findByBoardIdAndBoardWorkspaceId(
+            UUID boardId,
+            UUID workspaceId
+    );
+
+    List<LabelModel> findByBoardIdAndBoardWorkspaceIdAndIdIn(
+            UUID boardId,
+            UUID workspaceId,
             Set<UUID> labelIds
     );
 }
