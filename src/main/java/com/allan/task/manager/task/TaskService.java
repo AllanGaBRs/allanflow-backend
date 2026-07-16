@@ -1,5 +1,6 @@
 package com.allan.task.manager.task;
 
+import com.allan.task.manager.board.BoardPermissionService;
 import com.allan.task.manager.client.ClientLookupService;
 import com.allan.task.manager.client.ClientModel;
 import com.allan.task.manager.column.ColumnLookupService;
@@ -27,6 +28,7 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
     private final MembershipLookupService membershipLookupService;
+    private final BoardPermissionService boardPermissionService;
     private final LabelLookupService labelLookupService;
     private final ColumnLookupService columnLookupService;
     private final ClientLookupService clientLookupService;
@@ -36,6 +38,7 @@ public class TaskService {
     public TaskService(
             TaskRepository taskRepository,
             MembershipLookupService membershipLookupService,
+            BoardPermissionService boardPermissionService,
             LabelLookupService labelLookupService,
             ColumnLookupService columnLookupService,
             ClientLookupService clientLookupService,
@@ -44,6 +47,7 @@ public class TaskService {
     ) {
         this.taskRepository = taskRepository;
         this.membershipLookupService = membershipLookupService;
+        this.boardPermissionService = boardPermissionService;
         this.labelLookupService = labelLookupService;
         this.columnLookupService = columnLookupService;
         this.clientLookupService = clientLookupService;
@@ -59,7 +63,7 @@ public class TaskService {
             UUID columnId,
             UUID requesterId
     ) {
-        workspacePermissionService.requireOwnerOrAdmin(workspaceId, requesterId);
+        boardPermissionService.requireBoardAccess(workspaceId, boardId, requesterId);
 
         ColumnModel column =
                 columnLookupService.findColumnInBoard(workspaceId, boardId, columnId);
@@ -115,7 +119,7 @@ public class TaskService {
             TaskUpdateDTO dto,
             UUID requesterId
     ) {
-        workspacePermissionService.requireOwnerOrAdmin(workspaceId, requesterId);
+        boardPermissionService.requireBoardAccess(workspaceId, boardId, requesterId);
 
         columnLookupService.findColumnInBoard(workspaceId, boardId, columnId);
 
@@ -164,7 +168,7 @@ public class TaskService {
             UUID taskId,
             UUID requesterId
     ) {
-        workspacePermissionService.requireMember(workspaceId, requesterId);
+        boardPermissionService.requireBoardAccess(workspaceId, boardId, requesterId);
 
         columnLookupService.findColumnInBoard(workspaceId, boardId, columnId);
 
@@ -181,7 +185,7 @@ public class TaskService {
             UUID taskId,
             UUID requesterId
     ) {
-        workspacePermissionService.requireOwnerOrAdmin(workspaceId, requesterId);
+        boardPermissionService.requireBoardAccess(workspaceId, boardId, requesterId);
 
         columnLookupService.findColumnInBoard(workspaceId, boardId, columnId);
 
@@ -197,7 +201,7 @@ public class TaskService {
             UUID columnId,
             UUID requesterId
     ) {
-        workspacePermissionService.requireMember(workspaceId, requesterId);
+        boardPermissionService.requireBoardAccess(workspaceId, boardId, requesterId);
 
         columnLookupService.findColumnInBoard(workspaceId, boardId, columnId);
 
@@ -220,8 +224,7 @@ public class TaskService {
             TaskMoveDTO dto,
             UUID requesterId
     ) {
-
-        workspacePermissionService.requireMember(workspaceId, requesterId);
+        boardPermissionService.requireBoardAccess(workspaceId, boardId, requesterId);
         columnLookupService.findColumnInBoard(workspaceId, boardId, sourceColumnId);
 
         ColumnModel targetColumn = columnLookupService.findColumnInBoard(

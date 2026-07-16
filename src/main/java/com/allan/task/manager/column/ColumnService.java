@@ -2,6 +2,7 @@ package com.allan.task.manager.column;
 
 import com.allan.task.manager.board.BoardModel;
 import com.allan.task.manager.board.BoardLookupService;
+import com.allan.task.manager.board.BoardPermissionService;
 import com.allan.task.manager.column.dto.ColumnCreateDTO;
 import com.allan.task.manager.column.dto.ColumnResponseDTO;
 import com.allan.task.manager.column.dto.ColumnUpdateDTO;
@@ -21,17 +22,20 @@ public class ColumnService {
     private final ColumnRepository columnRepository;
     private final ColumnLookupService columnLookupService;
     private final BoardLookupService boardLookupService;
+    private final BoardPermissionService boardPermissionService;
     private final WorkspaceLookupService workspaceLookupService;
     private final WorkspacePermissionService workspacePermissionService;
 
     public ColumnService(ColumnRepository columnRepository,
                          ColumnLookupService columnLookupService,
                          BoardLookupService boardLookupService,
+                         BoardPermissionService boardPermissionService,
                          WorkspaceLookupService workspaceLookupService,
                          WorkspacePermissionService workspacePermissionService) {
         this.columnRepository = columnRepository;
         this.columnLookupService = columnLookupService;
         this.boardLookupService = boardLookupService;
+        this.boardPermissionService = boardPermissionService;
         this.workspaceLookupService = workspaceLookupService;
         this.workspacePermissionService = workspacePermissionService;
     }
@@ -43,7 +47,7 @@ public class ColumnService {
             ColumnCreateDTO dto,
             UUID requesterId
     ) {
-        workspacePermissionService.requireOwnerOrAdmin(workspaceId, requesterId);
+        boardPermissionService.requireBoardManagement(workspaceId, requesterId);
 
         WorkspaceModel workspace = workspaceLookupService.findActiveById(workspaceId);
         BoardModel board = boardLookupService.findInWorkspace(workspaceId, boardId);
@@ -61,7 +65,7 @@ public class ColumnService {
 
     @Transactional(readOnly = true)
     public List<ColumnResponseDTO> findAll(UUID workspaceId, UUID boardId, UUID requesterId) {
-        workspacePermissionService.requireMember(workspaceId, requesterId);
+        boardPermissionService.requireBoardAccess(workspaceId, boardId, requesterId);
         workspaceLookupService.findActiveById(workspaceId);
         boardLookupService.findInWorkspace(workspaceId, boardId);
 
@@ -77,7 +81,7 @@ public class ColumnService {
             UUID columnId,
             UUID requesterId
     ) {
-        workspacePermissionService.requireMember(workspaceId, requesterId);
+        boardPermissionService.requireBoardAccess(workspaceId, boardId, requesterId);
         boardLookupService.findInWorkspace(workspaceId, boardId);
 
         ColumnModel column = columnLookupService.findColumnInBoard(workspaceId, boardId, columnId);
@@ -93,7 +97,7 @@ public class ColumnService {
             ColumnUpdateDTO dto,
             UUID requesterId
     ) {
-        workspacePermissionService.requireOwnerOrAdmin(workspaceId, requesterId);
+        boardPermissionService.requireBoardManagement(workspaceId, requesterId);
         boardLookupService.findInWorkspace(workspaceId, boardId);
 
         ColumnModel column = columnLookupService.findColumnInBoard(workspaceId, boardId, columnId);

@@ -20,17 +20,20 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
     private final BoardLookupService boardLookupService;
+    private final BoardPermissionService boardPermissionService;
     private final WorkspaceLookupService workspaceLookupService;
     private final WorkspacePermissionService workspacePermissionService;
 
     public BoardService(
             BoardRepository boardRepository,
             BoardLookupService boardLookupService,
+            BoardPermissionService boardPermissionService,
             WorkspaceLookupService workspaceLookupService,
             WorkspacePermissionService workspacePermissionService
     ) {
         this.boardRepository = boardRepository;
         this.boardLookupService = boardLookupService;
+        this.boardPermissionService = boardPermissionService;
         this.workspaceLookupService = workspaceLookupService;
         this.workspacePermissionService = workspacePermissionService;
     }
@@ -69,7 +72,7 @@ public class BoardService {
 
     @Transactional(readOnly = true)
     public BoardResponseDTO findById(UUID workspaceId, UUID boardId, UUID requesterId) {
-        workspacePermissionService.requireMember(workspaceId, requesterId);
+        boardPermissionService.requireBoardAccess(workspaceId, boardId, requesterId);
 
         BoardModel board = boardLookupService.findInWorkspaceWithColumns(workspaceId, boardId);
 
