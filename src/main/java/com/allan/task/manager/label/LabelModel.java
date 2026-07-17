@@ -40,6 +40,8 @@ public class LabelModel extends Auditable {
     private BoardModel board;
 
     @ManyToMany(mappedBy = "labels")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Set<TaskModel> tasks = new HashSet<>();
 
 }

@@ -50,9 +50,13 @@ public class UserModel extends Auditable implements UserDetails {
     private String password;
 
     @ManyToMany(mappedBy = "assignees")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Set<TaskModel> tasks = new HashSet<>();
 
     @OneToMany(mappedBy = "user")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Set<MembershipModel> memberships = new HashSet<>();
 
     @EqualsAndHashCode.Exclude
@@ -65,6 +69,8 @@ public class UserModel extends Auditable implements UserDetails {
     private Role role;
 
     @OneToMany(mappedBy = "author")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Set<CommentModel> comments = new HashSet<>();
 
     @Column(nullable = false)
