@@ -1,8 +1,10 @@
 package com.allan.task.manager.comment;
 
+import com.allan.task.manager.board.BoardPermissionService;
 import com.allan.task.manager.comment.dto.CommentCreateDTO;
 import com.allan.task.manager.comment.dto.CommentResponseDTO;
 import com.allan.task.manager.comment.dto.CommentUpdateDTO;
+import com.allan.task.manager.comment.exception.CommentAccessDeniedException;
 import com.allan.task.manager.comment.mapper.CommentMapper;
 import com.allan.task.manager.task.TaskLookupService;
 import com.allan.task.manager.task.TaskModel;
@@ -22,6 +24,7 @@ public class CommentService {
     private final CommentLookupService commentLookupService;
     private final TaskLookupService taskLookupService;
     private final UserLookupService userLookupService;
+    private final BoardPermissionService boardPermissionService;
     private final WorkspacePermissionService workspacePermissionService;
 
     public CommentService(
@@ -29,12 +32,14 @@ public class CommentService {
             CommentLookupService commentLookupService,
             TaskLookupService taskLookupService,
             UserLookupService userLookupService,
+            BoardPermissionService boardPermissionService,
             WorkspacePermissionService workspacePermissionService
     ) {
         this.commentRepository = commentRepository;
         this.commentLookupService = commentLookupService;
         this.taskLookupService = taskLookupService;
         this.userLookupService = userLookupService;
+        this.boardPermissionService = boardPermissionService;
         this.workspacePermissionService = workspacePermissionService;
     }
 
@@ -47,7 +52,7 @@ public class CommentService {
             CommentCreateDTO dto,
             UUID requesterId
     ) {
-        workspacePermissionService.requireMember(workspaceId, requesterId);
+        boardPermissionService.requireBoardAccess(workspaceId, boardId, requesterId);
 
         TaskModel task = taskLookupService.findTaskInColumn(workspaceId, boardId, columnId, taskId);
         UserModel author = userLookupService.findActiveById(requesterId);
@@ -70,7 +75,7 @@ public class CommentService {
             CommentUpdateDTO dto,
             UUID requesterId
     ) {
-        workspacePermissionService.requireMember(workspaceId, requesterId);
+        boardPermissionService.requireBoardAccess(workspaceId, boardId, requesterId);
 
         taskLookupService.findTaskInColumn(workspaceId, boardId, columnId, taskId);
 
@@ -81,7 +86,7 @@ public class CommentService {
                 .equals(requesterId);
 
         if (!isAuthor) {
-            workspacePermissionService.requireOwner(workspaceId, requesterId);
+            throw new CommentAccessDeniedException("You cannot edit this comment");
         }
 
         comment.setContent(dto.content());
@@ -98,7 +103,7 @@ public class CommentService {
             UUID commentId,
             UUID requesterId
     ) {
-        workspacePermissionService.requireMember(workspaceId, requesterId);
+        boardPermissionService.requireBoardAccess(workspaceId, boardId, requesterId);
 
         taskLookupService.findTaskInColumn(workspaceId, boardId, columnId, taskId);
 
@@ -115,7 +120,7 @@ public class CommentService {
             UUID taskId,
             UUID requesterId
     ) {
-        workspacePermissionService.requireMember(workspaceId, requesterId);
+        boardPermissionService.requireBoardAccess(workspaceId, boardId, requesterId);
 
         taskLookupService.findTaskInColumn(workspaceId, boardId, columnId, taskId);
 
@@ -134,18 +139,16 @@ public class CommentService {
             UUID commentId,
             UUID requesterId
     ) {
-        workspacePermissionService.requireMember(workspaceId, requesterId);
+        boardPermissionService.requireBoardAccess(workspaceId, boardId, requesterId);
 
-        TaskModel task = taskLookupService.findTaskInColumn(workspaceId, boardId, columnId, taskId);
+        taskLookupService.findTaskInColumn(workspaceId, boardId, columnId, taskId);
 
         CommentModel comment = commentLookupService.findCommentInTask(workspaceId, boardId, columnId, taskId, commentId);
 
-        boolean isTaskOwner = task.getAssignees()
-                .stream()
-                .anyMatch(user -> user.getId().equals(requesterId));
+        boolean isAuthor = comment.getAuthor().getId().equals(requesterId);
 
-        if (!isTaskOwner) {
-            workspacePermissionService.requireOwner(workspaceId, requesterId);
+        if (!isAuthor) {
+            workspacePermissionService.requireOwnerOrAdmin(workspaceId, requesterId);
         }
 
         commentRepository.delete(comment);
