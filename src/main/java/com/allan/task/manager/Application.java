@@ -80,9 +80,26 @@ public class Application {
             maria.setPassword(passwordEncoder.encode("123456"));
             maria.setRole(UserModel.Role.ROLE_USER);
 
+            UserModel ana = new UserModel();
+            ana.setName("Ana");
+            ana.setEmail("ana@email.com");
+            ana.setPassword(passwordEncoder.encode("123456"));
+            ana.setRole(UserModel.Role.ROLE_USER);
+
+            UserModel carlos = new UserModel();
+            carlos.setName("Carlos");
+            carlos.setEmail("carlos@email.com");
+            carlos.setPassword(passwordEncoder.encode("123456"));
+            carlos.setRole(UserModel.Role.ROLE_USER);
+
+            UserModel bianca = new UserModel();
+            bianca.setName("Bianca");
+            bianca.setEmail("bianca@email.com");
+            bianca.setPassword(passwordEncoder.encode("123456"));
+            bianca.setRole(UserModel.Role.ROLE_USER);
 
             userRepository.saveAll(
-                    Set.of(allan, joao, maria)
+                    Set.of(allan, joao, maria, ana, carlos, bianca)
             );
 
 
@@ -123,9 +140,26 @@ public class Application {
                     .role(MembershipModel.MembershipRole.MEMBER)
                     .build();
 
+            MembershipModel financeMember = MembershipModel.builder()
+                    .user(ana)
+                    .workspace(workspace)
+                    .role(MembershipModel.MembershipRole.MEMBER)
+                    .build();
+
+            MembershipModel salesMember = MembershipModel.builder()
+                    .user(carlos)
+                    .workspace(workspace)
+                    .role(MembershipModel.MembershipRole.MEMBER)
+                    .build();
+
+            MembershipModel marketingMember = MembershipModel.builder()
+                    .user(bianca)
+                    .workspace(workspace)
+                    .role(MembershipModel.MembershipRole.MEMBER)
+                    .build();
 
             membershipRepository.saveAll(
-                    Set.of(owner, admin, member)
+                    Set.of(owner, admin, member, financeMember, salesMember, marketingMember)
             );
 
 
@@ -143,6 +177,37 @@ public class Application {
                     .build();
 
             boardRepository.save(board);
+
+            BoardModel financeBoard = BoardModel.builder()
+                    .name("Financeiro")
+                    .description("Contratos, cobranças e fechamento financeiro")
+                    .workspace(workspace)
+                    .members(new HashSet<>(
+                            Set.of(allan, ana)
+                    ))
+                    .build();
+
+            BoardModel marketingBoard = BoardModel.builder()
+                    .name("Marketing")
+                    .description("Campanhas, conteúdos e lançamentos")
+                    .workspace(workspace)
+                    .members(new HashSet<>(
+                            Set.of(allan, bianca)
+                    ))
+                    .build();
+
+            BoardModel salesBoard = BoardModel.builder()
+                    .name("Comercial")
+                    .description("Leads, propostas e clientes em negociação")
+                    .workspace(workspace)
+                    .members(new HashSet<>(
+                            Set.of(allan, carlos, maria)
+                    ))
+                    .build();
+
+            boardRepository.saveAll(
+                    Set.of(financeBoard, marketingBoard, salesBoard)
+            );
 
 
             /*
@@ -180,9 +245,85 @@ public class Application {
                     .workspace(workspace)
                     .build();
 
+            ColumnModel financeTodo = ColumnModel.builder()
+                    .name("A fazer")
+                    .position(0)
+                    .board(financeBoard)
+                    .workspace(workspace)
+                    .build();
+
+            ColumnModel financeWaiting = ColumnModel.builder()
+                    .name("Aguardando")
+                    .position(1)
+                    .board(financeBoard)
+                    .workspace(workspace)
+                    .build();
+
+            ColumnModel financeDone = ColumnModel.builder()
+                    .name("Finalizado")
+                    .position(2)
+                    .board(financeBoard)
+                    .workspace(workspace)
+                    .build();
+
+            ColumnModel marketingIdeas = ColumnModel.builder()
+                    .name("Ideias")
+                    .position(0)
+                    .board(marketingBoard)
+                    .workspace(workspace)
+                    .build();
+
+            ColumnModel marketingDoing = ColumnModel.builder()
+                    .name("Produção")
+                    .position(1)
+                    .board(marketingBoard)
+                    .workspace(workspace)
+                    .build();
+
+            ColumnModel marketingDone = ColumnModel.builder()
+                    .name("Publicado")
+                    .position(2)
+                    .board(marketingBoard)
+                    .workspace(workspace)
+                    .build();
+
+            ColumnModel salesLeads = ColumnModel.builder()
+                    .name("Leads")
+                    .position(0)
+                    .board(salesBoard)
+                    .workspace(workspace)
+                    .build();
+
+            ColumnModel salesProposal = ColumnModel.builder()
+                    .name("Proposta")
+                    .position(1)
+                    .board(salesBoard)
+                    .workspace(workspace)
+                    .build();
+
+            ColumnModel salesClosed = ColumnModel.builder()
+                    .name("Fechado")
+                    .position(2)
+                    .board(salesBoard)
+                    .workspace(workspace)
+                    .build();
 
             columnRepository.saveAll(
-                    Set.of(todo, doing, review, done)
+                    Set.of(
+                            todo,
+                            doing,
+                            review,
+                            done,
+                            financeTodo,
+                            financeWaiting,
+                            financeDone,
+                            marketingIdeas,
+                            marketingDoing,
+                            marketingDone,
+                            salesLeads,
+                            salesProposal,
+                            salesClosed
+                    )
             );
 
 
@@ -201,9 +342,38 @@ public class Application {
             feature.setColor("#22C55E");
             feature.setBoard(board);
 
+            LabelModel invoice = new LabelModel();
+            invoice.setName("Faturamento");
+            invoice.setColor("#0EA5E9");
+            invoice.setBoard(financeBoard);
+
+            LabelModel contract = new LabelModel();
+            contract.setName("Contrato");
+            contract.setColor("#6366F1");
+            contract.setBoard(financeBoard);
+
+            LabelModel campaign = new LabelModel();
+            campaign.setName("Campanha");
+            campaign.setColor("#EC4899");
+            campaign.setBoard(marketingBoard);
+
+            LabelModel content = new LabelModel();
+            content.setName("Conteúdo");
+            content.setColor("#14B8A6");
+            content.setBoard(marketingBoard);
+
+            LabelModel lead = new LabelModel();
+            lead.setName("Lead");
+            lead.setColor("#2563EB");
+            lead.setBoard(salesBoard);
+
+            LabelModel proposal = new LabelModel();
+            proposal.setName("Proposta");
+            proposal.setColor("#7C3AED");
+            proposal.setBoard(salesBoard);
 
             labelRepository.saveAll(
-                    Set.of(bug, feature)
+                    Set.of(bug, feature, invoice, contract, campaign, content, lead, proposal)
             );
 
 
@@ -329,4 +499,4 @@ public class Application {
 
         };
     }
-}
+}   
