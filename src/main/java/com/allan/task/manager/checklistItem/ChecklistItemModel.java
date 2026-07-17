@@ -31,5 +31,7 @@ public class ChecklistItemModel extends Auditable{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "checklist_id", nullable = false)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private ChecklistModel checklist;
 }
