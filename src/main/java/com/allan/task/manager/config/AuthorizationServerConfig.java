@@ -1,10 +1,14 @@
 package com.allan.task.manager.config;
 
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.time.Duration;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -64,6 +68,12 @@ public class AuthorizationServerConfig {
 
     @Value("${security.jwt.duration}")
     private Integer jwtDurationSeconds;
+
+    @Value("${security.jwt.private-key-base64:}")
+    private String privateKeyBase64;
+
+    @Value("${security.jwt.public-key-base64:}")
+    private String publicKeyBase64;
 
     @Autowired
     private UserDetailsService userDetailsService;
@@ -175,27 +185,33 @@ public class AuthorizationServerConfig {
 
     @Bean
     public JWKSource<SecurityContext> jwkSource() {
-        RSAKey rsaKey = generateRsa();
+        RSAKey rsaKey = loadRsaFromEnvironment();
+
         JWKSet jwkSet = new JWKSet(rsaKey);
         return (jwkSelector, securityContext) -> jwkSelector.select(jwkSet);
     }
 
-    private static RSAKey generateRsa() {
-        KeyPair keyPair = generateRsaKey();
-        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
-        RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
-        return new RSAKey.Builder(publicKey).privateKey(privateKey).keyID(UUID.randomUUID().toString()).build();
-    }
-
-    private static KeyPair generateRsaKey() {
-        KeyPair keyPair;
+    private RSAKey loadRsaFromEnvironment() {
         try {
-            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-            keyPairGenerator.initialize(2048);
-            keyPair = keyPairGenerator.generateKeyPair();
-        } catch (Exception ex) {
-            throw new IllegalStateException(ex);
+            byte[] privateBytes = Base64.getDecoder().decode(privateKeyBase64);
+            byte[] publicBytes = Base64.getDecoder().decode(publicKeyBase64);
+
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+
+            RSAPrivateKey privateKey = (RSAPrivateKey) keyFactory.generatePrivate(
+                    new PKCS8EncodedKeySpec(privateBytes)
+            );
+
+            RSAPublicKey publicKey = (RSAPublicKey) keyFactory.generatePublic(
+                    new X509EncodedKeySpec(publicBytes)
+            );
+
+            return new RSAKey.Builder(publicKey)
+                    .privateKey(privateKey)
+                    .keyID("task-manager-key")
+                    .build();
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to load JWT RSA keys", e);
         }
-        return keyPair;
     }
 }
