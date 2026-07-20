@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -48,8 +49,13 @@ public class ResourceServerConfig {
         http.csrf(csrf -> csrf.disable());
 
         http.authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .anyRequest().permitAll()
+                .requestMatchers(
+                        "/swagger-ui.html",
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**"
+                ).permitAll()
+                .requestMatchers(HttpMethod.POST, "/users").permitAll()
+                .anyRequest().authenticated()
         );
 
 
