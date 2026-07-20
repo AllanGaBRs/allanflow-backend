@@ -1,6 +1,8 @@
 package com.allan.task.manager.membership.exception;
 
-public class MembershipAlreadyExistsException extends RuntimeException {
+import com.allan.task.manager.shared.exceptions.AlreadyExistsException;
+
+public class MembershipAlreadyExistsException extends AlreadyExistsException {
     public MembershipAlreadyExistsException(String message) {
         super(message);
     }

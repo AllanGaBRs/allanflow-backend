@@ -2,12 +2,20 @@ package com.allan.task.manager.shared;
 
 import com.allan.task.manager.client.dto.DuplicateClientError;
 import com.allan.task.manager.client.exceptions.DuplicateClientException;
+import com.allan.task.manager.comment.exception.CommentAccessDeniedException;
 import com.allan.task.manager.shared.dto.CustomError;
+import com.allan.task.manager.shared.dto.ValidationError;
 import com.allan.task.manager.shared.exceptions.AlreadyExistsException;
+import com.allan.task.manager.shared.exceptions.BadRequestException;
+import com.allan.task.manager.shared.exceptions.ForbiddenException;
 import com.allan.task.manager.shared.exceptions.ResourceNotFoundException;
+import com.allan.task.manager.workspace.exception.WorkspaceAccessDeniedException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -15,6 +23,8 @@ import java.time.Instant;
 
 @ControllerAdvice
 public class ControllerExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(ControllerExceptionHandler.class);
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<CustomError> resourceNotFound(ResourceNotFoundException e, HttpServletRequest request){
@@ -58,9 +68,64 @@ public class ControllerExceptionHandler {
         return ResponseEntity.status(status).body(err);
     }
 
-    // Temporary fallback.
-    // I'll replace this with specific handlers as I add custom exceptions.
-    // TODO: Replace this with specific exception handlers.
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ValidationError> validation(
+            MethodArgumentNotValidException e,
+            HttpServletRequest request
+    ) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        ValidationError err = new ValidationError(
+                Instant.now(),
+                status.value(),
+                "Validation error",
+                request.getRequestURI()
+        );
+
+        e.getBindingResult()
+                .getFieldErrors()
+                .forEach(fieldError -> err.addError(
+                        fieldError.getField(),
+                        fieldError.getDefaultMessage()
+                ));
+
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<CustomError> forbidden(
+            ForbiddenException e,
+            HttpServletRequest request
+    ) {
+        HttpStatus status = HttpStatus.FORBIDDEN;
+
+        CustomError err = new CustomError(
+                Instant.now(),
+                status.value(),
+                e.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<CustomError> badRequest(
+            BadRequestException e,
+            HttpServletRequest request
+    ) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        CustomError err = new CustomError(
+                Instant.now(),
+                status.value(),
+                e.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(status).body(err);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<CustomError> exception(
             Exception e,
@@ -68,10 +133,12 @@ public class ControllerExceptionHandler {
     ) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
 
+        log.error("Unexpected server error at {}", request.getRequestURI(), e);
+
         CustomError err = new CustomError(
                 Instant.now(),
                 status.value(),
-                e.getMessage(),
+                "Unexpected server error",
                 request.getRequestURI()
         );
 

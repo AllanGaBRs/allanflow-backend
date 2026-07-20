@@ -1,6 +1,8 @@
 package com.allan.task.manager.workspace.exception;
 
-public class WorkspaceAccessDeniedException extends RuntimeException {
+import com.allan.task.manager.shared.exceptions.ForbiddenException;
+
+public class WorkspaceAccessDeniedException extends ForbiddenException {
     public WorkspaceAccessDeniedException(String message) {
         super(message);
     }

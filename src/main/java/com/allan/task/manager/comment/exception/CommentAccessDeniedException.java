@@ -1,8 +1,8 @@
 package com.allan.task.manager.comment.exception;
 
-import java.nio.file.AccessDeniedException;
+import com.allan.task.manager.shared.exceptions.ForbiddenException;
 
-public class CommentAccessDeniedException extends RuntimeException {
+public class CommentAccessDeniedException extends ForbiddenException {
 
     public CommentAccessDeniedException(String message) {
         super(message);

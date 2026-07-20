@@ -1,6 +1,8 @@
 package com.allan.task.manager.user.exception;
 
-public class UserAlreadyExistsException extends RuntimeException {
+import com.allan.task.manager.shared.exceptions.AlreadyExistsException;
+
+public class UserAlreadyExistsException extends AlreadyExistsException {
     public UserAlreadyExistsException(String message) {
         super(message);
     }

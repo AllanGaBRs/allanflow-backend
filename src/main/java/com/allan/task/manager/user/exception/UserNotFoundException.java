@@ -1,6 +1,8 @@
 package com.allan.task.manager.user.exception;
 
-public class UserNotFoundException extends RuntimeException {
+import com.allan.task.manager.shared.exceptions.ResourceNotFoundException;
+
+public class UserNotFoundException extends ResourceNotFoundException {
     public UserNotFoundException(String message) {
         super(message);
     }

@@ -1,6 +1,8 @@
 package com.allan.task.manager.workspace.exception;
 
-public class WorkspaceAlreadyExistsException extends RuntimeException {
+import com.allan.task.manager.shared.exceptions.AlreadyExistsException;
+
+public class WorkspaceAlreadyExistsException extends AlreadyExistsException {
     public WorkspaceAlreadyExistsException(String message) {
         super(message);
     }
