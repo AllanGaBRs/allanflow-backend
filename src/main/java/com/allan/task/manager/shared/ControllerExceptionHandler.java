@@ -18,8 +18,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @ControllerAdvice
 public class ControllerExceptionHandler {
@@ -120,6 +122,29 @@ public class ControllerExceptionHandler {
                 Instant.now(),
                 status.value(),
                 e.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<CustomError> typeMismatch(
+            MethodArgumentTypeMismatchException e,
+            HttpServletRequest request
+    ) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        String message = "Invalid parameter";
+
+        if (e.getRequiredType() != null && e.getRequiredType().equals(UUID.class)) {
+            message = "Invalid UUID parameter: " + e.getName();
+        }
+
+        CustomError err = new CustomError(
+                Instant.now(),
+                status.value(),
+                message,
                 request.getRequestURI()
         );
 
