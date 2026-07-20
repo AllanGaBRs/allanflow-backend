@@ -1,19 +1,18 @@
 package com.allan.task.manager.integration;
 
 import com.allan.task.manager.factory.Factory;
+import com.allan.task.manager.integration.support.ApiTestHelper;
 import com.allan.task.manager.user.dto.UserRegisterDTO;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -22,7 +21,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
 public class ApiExceptionHandlingTests {
 
     @Autowired
@@ -37,26 +35,16 @@ public class ApiExceptionHandlingTests {
     @Value("${security.client-secret}")
     private String clientSecret;
 
-    private String accessToken(UserRegisterDTO dto) throws Exception {
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isCreated());
+    private ApiTestHelper apiTestHelper;
 
-        String response = mockMvc.perform(post("/oauth2/token")
-                        .with(httpBasic(clientId, clientSecret))
-                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                        .param("grant_type", "password")
-                        .param("username", dto.email())
-                        .param("password", dto.password())
-                        .param("scope", "read write"))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        JsonNode json = objectMapper.readTree(response);
-        return json.get("access_token").asText();
+    @BeforeEach
+    void setUp() {
+        apiTestHelper = new ApiTestHelper(
+                mockMvc,
+                objectMapper,
+                clientId,
+                clientSecret
+        );
     }
 
     @Test
@@ -107,10 +95,7 @@ public class ApiExceptionHandlingTests {
     void duplicateUserReturnsConflictBody() throws Exception {
         UserRegisterDTO dto = Factory.createUserRegisterDTO();
 
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isCreated());
+        apiTestHelper.registerUser(dto);
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -125,7 +110,7 @@ public class ApiExceptionHandlingTests {
     @Test
     void validationErrorReturnsValidationBody() throws Exception {
         UserRegisterDTO user = Factory.createUserRegisterDTO();
-        String token = accessToken(user);
+        String token = apiTestHelper.accessToken(user);
 
         mockMvc.perform(post("/workspaces")
                         .header("Authorization", "Bearer " + token)
@@ -142,5 +127,51 @@ public class ApiExceptionHandlingTests {
                 .andExpect(jsonPath("$.path").value("/workspaces"))
                 .andExpect(jsonPath("$.errors").isArray())
                 .andExpect(jsonPath("$.errors[0].fieldName").value("name"));
+    }
+
+    @Test
+    void invalidWorkspaceUuidReturnsBadRequestBody() throws Exception {
+        UserRegisterDTO user = Factory.createUserRegisterDTO();
+        String token = apiTestHelper.accessToken(user);
+
+        mockMvc.perform(get("/workspaces/not-a-uuid")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.timestamp", notNullValue()))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Invalid UUID parameter: workspaceId"))
+                .andExpect(jsonPath("$.path").value("/workspaces/not-a-uuid"));
+    }
+
+    @Test
+    void invalidJsonReturnsBadRequestBody() throws Exception {
+        UserRegisterDTO user = Factory.createUserRegisterDTO();
+        String token = apiTestHelper.accessToken(user);
+
+        mockMvc.perform(post("/workspaces")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{ invalid-json }"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.timestamp", notNullValue()))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Invalid request body"))
+                .andExpect(jsonPath("$.path").value("/workspaces"));
+    }
+
+    @Test
+    void authenticatedUserCanListOwnWorkspaces() throws Exception {
+        UserRegisterDTO user = Factory.createUserRegisterDTO();
+        String token = apiTestHelper.accessToken(user);
+
+        apiTestHelper.createWorkspace(token, "My Workspace");
+
+        mockMvc.perform(get("/workspaces/me")
+                        .header("Authorization", apiTestHelper.bearer(token)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0].id").exists())
+                .andExpect(jsonPath("$[0].name").value("My Workspace"))
+                .andExpect(jsonPath("$[0].userRole").value("OWNER"));
     }
 }
