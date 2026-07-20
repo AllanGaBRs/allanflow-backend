@@ -1,9 +1,13 @@
 package com.allan.task.manager.config;
 
+import java.time.Instant;
 import java.util.Arrays;
 
+import com.allan.task.manager.shared.dto.CustomError;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -19,7 +23,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -32,6 +38,12 @@ public class ResourceServerConfig {
 
     @Value("${cors.origins}")
     private String corsOrigins;
+
+    private final ObjectMapper objectMapper;
+
+    public ResourceServerConfig(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     @Bean
     @Profile("test")
@@ -61,13 +73,51 @@ public class ResourceServerConfig {
 
         http.oauth2ResourceServer(oauth2 -> oauth2
                 .bearerTokenResolver(bearerTokenResolver())
+                .authenticationEntryPoint(authenticationEntryPoint())
                 .jwt(jwt -> jwt
                         .jwtAuthenticationConverter(jwtAuthenticationConverter())
                 )
         );
 
+        http.exceptionHandling(exception -> exception
+                .authenticationEntryPoint(authenticationEntryPoint())
+                .accessDeniedHandler(accessDeniedHandler())
+        );
+
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
         return http.build();
+    }
+
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint() {
+        return (request, response, authException) -> {
+            CustomError err = new CustomError(
+                    Instant.now(),
+                    HttpServletResponse.SC_UNAUTHORIZED,
+                    "Unauthorized",
+                    request.getRequestURI()
+            );
+
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            objectMapper.writeValue(response.getOutputStream(), err);
+        };
+    }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        return (request, response, accessDeniedException) -> {
+            CustomError err = new CustomError(
+                    Instant.now(),
+                    HttpServletResponse.SC_FORBIDDEN,
+                    "Forbidden",
+                    request.getRequestURI()
+            );
+
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setContentType("application/json");
+            objectMapper.writeValue(response.getOutputStream(), err);
+        };
     }
 
     @Bean
