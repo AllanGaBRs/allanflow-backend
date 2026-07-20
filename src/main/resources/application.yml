@@ -1,18 +1,21 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
+
   profiles:
-    active: ${APP_PROFILE:test}
+    active: ${APP_PROFILE}
 
   jpa:
     open-in-view: false
 
 security:
-  client-id: ${CLIENT_ID:myclientid}
-  client-secret: ${CLIENT_SECRET:myclientsecret}
+  client-id: ${CLIENT_ID}
+  client-secret: ${CLIENT_SECRET}
   jwt:
-    duration: ${JWT_DURATION:86400}
+    duration: ${JWT_DURATION}
 
 cors:
-  origins: ${CORS_ORIGINS:http://localhost:3000,http://localhost:5173}
+  origins: ${CORS_ORIGINS}
 
 springdoc:
   api-docs:
