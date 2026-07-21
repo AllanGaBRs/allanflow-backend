@@ -1,49 +1,17 @@
 package com.allan.task.manager.integration;
 
 import com.allan.task.manager.factory.Factory;
-import com.allan.task.manager.integration.support.ApiTestHelper;
+import com.allan.task.manager.integration.support.IntegrationTest;
 import com.allan.task.manager.user.dto.UserRegisterDTO;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-public class ApiBusinessRulesTests {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Value("${security.client-id}")
-    private String clientId;
-
-    @Value("${security.client-secret}")
-    private String clientSecret;
-    private ApiTestHelper apiTestHelper;
-
-    @BeforeEach
-    void setUp() {
-        apiTestHelper = new ApiTestHelper(
-                mockMvc,
-                objectMapper,
-                clientId,
-                clientSecret
-        );
-    }
+public class ApiBusinessRulesTests extends IntegrationTest {
 
     @Test
     void userOutsideWorkspaceCannotAccessWorkspaceDetails() throws Exception {
