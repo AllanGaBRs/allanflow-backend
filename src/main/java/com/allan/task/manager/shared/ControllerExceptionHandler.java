@@ -20,6 +20,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -163,6 +164,23 @@ public class ControllerExceptionHandler {
                 Instant.now(),
                 status.value(),
                 "Invalid request body",
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<CustomError> noResourceFound(
+            NoResourceFoundException e,
+            HttpServletRequest request
+    ) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
+
+        CustomError err = new CustomError(
+                Instant.now(),
+                status.value(),
+                "Resource not found",
                 request.getRequestURI()
         );
 

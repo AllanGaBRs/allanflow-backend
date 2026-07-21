@@ -46,7 +46,7 @@ public class ResourceServerConfig {
     }
 
     @Bean
-    @Profile("test")
+    @Profile({"dev", "test"})
     @Order(1)
     public SecurityFilterChain h2SecurityFilterChain(HttpSecurity http) throws Exception {
 
