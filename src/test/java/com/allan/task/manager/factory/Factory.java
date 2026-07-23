@@ -1,6 +1,9 @@
 package com.allan.task.manager.factory;
 
+import com.allan.task.manager.board.BoardModel;
+import com.allan.task.manager.column.ColumnModel;
 import com.allan.task.manager.membership.MembershipModel;
+import com.allan.task.manager.task.TaskModel;
 import com.allan.task.manager.user.UserModel;
 import com.allan.task.manager.user.dto.UserRegisterDTO;
 import com.allan.task.manager.workspace.WorkspaceModel;
@@ -49,5 +52,36 @@ public class Factory {
         membership.setWorkspace(createWorkspaceModel());
         membership.setRole(role);
         return membership;
+    }
+
+    public static BoardModel createBoardModel() {
+        BoardModel board = new BoardModel();
+        board.setId(UUID.randomUUID());
+        board.setName("Test Board");
+        board.setWorkspace(createWorkspaceModel());
+        return board;
+    }
+
+    public static ColumnModel createColumnModel(BoardModel board, int position) {
+        ColumnModel column = new ColumnModel();
+        column.setId(UUID.randomUUID());
+        column.setName("Test Column");
+        column.setPosition(position);
+        column.setBoard(board);
+        column.setWorkspace(board.getWorkspace());
+        return column;
+    }
+
+    public static TaskModel createTaskModel(ColumnModel column, int position) {
+        TaskModel task = new TaskModel();
+        task.setId(UUID.randomUUID());
+        task.setTitle("Test Task");
+        task.setWorkspace(column.getWorkspace());
+        task.setBoard(column.getBoard());
+        task.setColumn(column);
+        task.setPosition(position);
+        task.setPriority(TaskModel.Priority.MEDIUM);
+        task.setArchived(false);
+        return task;
     }
 }
