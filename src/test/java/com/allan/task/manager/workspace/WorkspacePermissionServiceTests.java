@@ -86,4 +86,24 @@ class WorkspacePermissionServiceTests {
 
         assertSame(membership, result);
     }
+
+    @Test
+    void requireOwnerOrAdminShouldThrowExceptionWhenUserIsMember() {
+        UUID workspaceId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        MembershipModel membership = new MembershipModel();
+        membership.setRole(MembershipModel.MembershipRole.MEMBER);
+
+        when(membershipRepository.findByWorkspaceIdAndUserId(workspaceId, userId))
+                .thenReturn(Optional.of(membership));
+
+        assertThrows(
+                WorkspaceAccessDeniedException.class,
+                () -> workspacePermissionService.requireOwnerOrAdmin(
+                        workspaceId,
+                        userId
+                )
+        );
+    }
 }
