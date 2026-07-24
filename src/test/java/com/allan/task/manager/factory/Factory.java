@@ -1,7 +1,10 @@
 package com.allan.task.manager.factory;
 
 import com.allan.task.manager.board.BoardModel;
+import com.allan.task.manager.checklist.ChecklistModel;
+import com.allan.task.manager.checklistItem.ChecklistItemModel;
 import com.allan.task.manager.column.ColumnModel;
+import com.allan.task.manager.comment.CommentModel;
 import com.allan.task.manager.membership.MembershipModel;
 import com.allan.task.manager.task.TaskModel;
 import com.allan.task.manager.user.UserModel;
@@ -83,5 +86,38 @@ public class Factory {
         task.setPriority(TaskModel.Priority.MEDIUM);
         task.setArchived(false);
         return task;
+    }
+
+    public static CommentModel createCommentModel(
+            TaskModel task,
+            UserModel author
+    ) {
+        CommentModel comment = new CommentModel();
+        comment.setId(UUID.randomUUID());
+        comment.setContent("Test Comment");
+        comment.setTask(task);
+        comment.setAuthor(author);
+        return comment;
+    }
+
+    public static ChecklistModel createChecklistModel(TaskModel task) {
+        ChecklistModel checklist = new ChecklistModel();
+        checklist.setId(UUID.randomUUID());
+        checklist.setTitle("Test Checklist");
+        checklist.setTask(task);
+        return checklist;
+    }
+
+    public static ChecklistItemModel createChecklistItemModel(
+            ChecklistModel checklist,
+            int position
+    ) {
+        ChecklistItemModel item = new ChecklistItemModel();
+        item.setId(UUID.randomUUID());
+        item.setContent("Test Checklist Item");
+        item.setChecked(false);
+        item.setPosition(position);
+        item.setChecklist(checklist);
+        return item;
     }
 }
