@@ -17,21 +17,11 @@ public class CustomUserDetailsService implements UserDetailsService {
     private UserRepository repository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
-        List<UserDetailsProjection> result = repository.searchUserAndRolesByEmail(username);
-        if (result.size() == 0) {
-            throw new UsernameNotFoundException("Email not found");
-        }
-
-        UUID userId = result.get(0).getId();
-
-        UserModel user = new UserModel();
-        user.setId(userId);
-        user.setEmail(result.get(0).getUsername());
-        user.setPassword(result.get(0).getPassword());
-        user.setRole(UserModel.Role.valueOf(result.get(0).getAuthority()));
-
-        return user;
+    public UserDetails loadUserByUsername(String username)
+            throws UsernameNotFoundException {
+        return repository.findByEmailAndIsActiveTrue(username)
+                .orElseThrow(() ->
+                        new UsernameNotFoundException("Email not found")
+                );
     }
 }

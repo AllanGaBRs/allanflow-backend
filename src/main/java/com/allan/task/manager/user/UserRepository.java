@@ -12,18 +12,6 @@ import java.util.UUID;
 @Repository
 public interface UserRepository extends JpaRepository<UserModel, UUID> {
 
-    @Query(nativeQuery = true, value = """
-            SELECT
-                tb_user.id AS id,
-                tb_user.email AS username,
-                tb_user.password,
-                tb_user.role AS authority
-            FROM tb_user
-            WHERE tb_user.email = :email
-                AND tb_user.is_active = true
-        """)
-    List<UserDetailsProjection> searchUserAndRolesByEmail(String email);
-
     boolean existsByEmail(String email);
 
     Optional<UserModel> findByEmail(String email);
