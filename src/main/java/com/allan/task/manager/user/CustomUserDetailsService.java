@@ -24,7 +24,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("Email not found");
         }
 
-        UUID userId = convertToUUID(result.get(0).getId());
+        UUID userId = result.get(0).getId();
 
         UserModel user = new UserModel();
         user.setId(userId);
@@ -33,12 +33,5 @@ public class CustomUserDetailsService implements UserDetailsService {
         user.setRole(UserModel.Role.valueOf(result.get(0).getAuthority()));
 
         return user;
-    }
-
-    private UUID convertToUUID(byte[] bytes) {
-        ByteBuffer bb = ByteBuffer.wrap(bytes);
-        long high = bb.getLong();
-        long low = bb.getLong();
-        return new UUID(high, low);
     }
 }

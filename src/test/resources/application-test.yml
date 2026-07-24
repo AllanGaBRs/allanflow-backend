@@ -16,6 +16,9 @@ spring:
       hibernate:
         format_sql: false
 
+  flyway:
+    enabled: false
+
 security:
   client-id: test-client
   client-secret: test-secret

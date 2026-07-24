@@ -20,6 +20,7 @@ public interface UserRepository extends JpaRepository<UserModel, UUID> {
                 tb_user.role AS authority
             FROM tb_user
             WHERE tb_user.email = :email
+                AND tb_user.is_active = true
         """)
     List<UserDetailsProjection> searchUserAndRolesByEmail(String email);
 
