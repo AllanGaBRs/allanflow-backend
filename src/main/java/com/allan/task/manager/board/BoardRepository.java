@@ -12,6 +12,8 @@ import java.util.UUID;
 @Repository
 public interface BoardRepository extends JpaRepository<BoardModel, UUID> {
 
+    long countByWorkspaceId(UUID workspaceId);
+
     boolean existsByNameAndWorkspaceId(
             String name,
             UUID workspaceId

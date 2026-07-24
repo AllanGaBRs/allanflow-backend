@@ -12,6 +12,8 @@ import java.util.UUID;
 
 public interface MembershipRepository extends JpaRepository<MembershipModel, UUID> {
 
+    long countByWorkspaceId(UUID workspaceId);
+
     boolean existsByWorkspaceIdAndUserId(UUID workspaceId, UUID userId);
 
     Optional<MembershipModel> findByWorkspaceIdAndUserId(UUID workspaceId, UUID userId);

@@ -5,12 +5,30 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface TaskRepository extends JpaRepository<TaskModel, UUID> {
+
+    long countByWorkspaceIdAndArchivedFalse(UUID workspaceId);
+
+    long countByWorkspaceIdAndArchivedFalseAndPriority(
+            UUID workspaceId,
+            TaskModel.Priority priority
+    );
+
+    @Query("""
+        SELECT COUNT(t)
+        FROM TaskModel t
+        WHERE t.workspace.id = :workspaceId
+          AND t.archived = false
+          AND t.dueDate IS NOT NULL
+          AND t.dueDate < :now
+    """)
+    long countOverdueByWorkspaceId(UUID workspaceId, LocalDateTime now);
 
     Optional<TaskModel> findByIdAndWorkspaceIdAndBoardIdAndColumnId(
             UUID taskId,
