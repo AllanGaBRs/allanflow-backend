@@ -27,3 +27,8 @@ springdoc:
     enabled: true
     path: /swagger-ui.html
     persist-authorization: true
+
+email:
+  resend:
+    api-key: ${RESEND_API_KEY}
+    from: ${RESEND_FROM}

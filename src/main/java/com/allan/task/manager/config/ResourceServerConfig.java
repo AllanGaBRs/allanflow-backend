@@ -64,7 +64,8 @@ public class ResourceServerConfig {
                 .requestMatchers(
                         "/swagger-ui.html",
                         "/swagger-ui/**",
-                        "/v3/api-docs/**"
+                        "/v3/api-docs/**",
+                        "/email/**"
                 ).permitAll()
                 .requestMatchers(HttpMethod.POST, "/users").permitAll()
                 .anyRequest().authenticated()
