@@ -1,6 +1,5 @@
 package com.allan.task.manager.client;
 
-import com.allan.task.manager.checklistItem.ChecklistItemModel;
 import com.allan.task.manager.workspace.WorkspaceModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

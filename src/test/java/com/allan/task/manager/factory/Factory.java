@@ -2,7 +2,7 @@ package com.allan.task.manager.factory;
 
 import com.allan.task.manager.board.BoardModel;
 import com.allan.task.manager.checklist.ChecklistModel;
-import com.allan.task.manager.checklistItem.ChecklistItemModel;
+import com.allan.task.manager.checklistitem.ChecklistItemModel;
 import com.allan.task.manager.column.ColumnModel;
 import com.allan.task.manager.comment.CommentModel;
 import com.allan.task.manager.membership.MembershipModel;

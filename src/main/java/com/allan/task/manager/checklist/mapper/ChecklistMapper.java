@@ -3,7 +3,7 @@ package com.allan.task.manager.checklist.mapper;
 import com.allan.task.manager.checklist.ChecklistModel;
 import com.allan.task.manager.checklist.dto.ChecklistItemResponseDTO;
 import com.allan.task.manager.checklist.dto.ChecklistResponseDTO;
-import com.allan.task.manager.checklistItem.ChecklistItemModel;
+import com.allan.task.manager.checklistitem.ChecklistItemModel;
 
 import java.util.Comparator;
 import java.util.List;

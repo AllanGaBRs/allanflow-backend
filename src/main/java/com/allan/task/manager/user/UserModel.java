@@ -3,6 +3,7 @@ package com.allan.task.manager.user;
 import com.allan.task.manager.board.BoardModel;
 import com.allan.task.manager.comment.CommentModel;
 import com.allan.task.manager.membership.MembershipModel;
+import com.allan.task.manager.passwordreset.PasswordResetModel;
 import com.allan.task.manager.shared.Auditable;
 import com.allan.task.manager.task.TaskModel;
 import jakarta.persistence.*;
@@ -67,6 +68,11 @@ public class UserModel extends Auditable implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
+
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private PasswordResetModel passwordReset;
 
     @OneToMany(mappedBy = "author")
     @EqualsAndHashCode.Exclude

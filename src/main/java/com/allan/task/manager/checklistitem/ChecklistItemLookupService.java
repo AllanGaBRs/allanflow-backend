@@ -1,4 +1,4 @@
-package com.allan.task.manager.checklistItem;
+package com.allan.task.manager.checklistitem;
 
 import com.allan.task.manager.checklist.exception.ChecklistItemNotFoundException;
 import org.springframework.stereotype.Service;

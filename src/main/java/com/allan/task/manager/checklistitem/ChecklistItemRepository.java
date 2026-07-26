@@ -1,4 +1,4 @@
-package com.allan.task.manager.checklistItem;
+package com.allan.task.manager.checklistitem;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

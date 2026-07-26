@@ -1,6 +1,6 @@
 package com.allan.task.manager.checklist;
 
-import com.allan.task.manager.checklistItem.ChecklistItemModel;
+import com.allan.task.manager.checklistitem.ChecklistItemModel;
 import com.allan.task.manager.shared.Auditable;
 import com.allan.task.manager.task.TaskModel;
 import jakarta.persistence.*;
