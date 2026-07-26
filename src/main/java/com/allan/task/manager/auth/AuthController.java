@@ -1,9 +1,8 @@
 package com.allan.task.manager.auth;
 
-import com.allan.task.manager.auth.dto.ResetPasswordRequestDTO;
+import com.allan.task.manager.passwordreset.dto.ForgotPasswordRequestDTO;
 import com.allan.task.manager.passwordreset.PasswordResetService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
+import com.allan.task.manager.passwordreset.dto.ResetPasswordRequestDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,11 +39,20 @@ public class AuthController {
         return ResponseEntity.ok(user);
     }
 
-    @PostMapping("/reset-password")
+    @PostMapping("/forgot-password")
     public ResponseEntity<Void> resetPassword(
-            @RequestBody @Valid ResetPasswordRequestDTO dto
+            @RequestBody @Valid ForgotPasswordRequestDTO dto
     ) {
         passwordResetService.generatePasswordResetCode(dto);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(
+            @RequestBody @Valid ResetPasswordRequestDTO request
+    ) {
+        passwordResetService.resetPassword(request);
 
         return ResponseEntity.noContent().build();
     }

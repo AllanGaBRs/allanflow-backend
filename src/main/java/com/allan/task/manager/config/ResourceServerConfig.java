@@ -65,7 +65,7 @@ public class ResourceServerConfig {
                         "/swagger-ui.html",
                         "/swagger-ui/**",
                         "/v3/api-docs/**",
-                        "/email/**",
+                        "/auth/forgot-password",
                         "/auth/reset-password"
                 ).permitAll()
                 .requestMatchers(HttpMethod.POST, "/users").permitAll()

@@ -1,7 +1,8 @@
 package com.allan.task.manager.passwordreset;
 
-import com.allan.task.manager.auth.dto.ResetPasswordRequestDTO;
+import com.allan.task.manager.passwordreset.dto.ForgotPasswordRequestDTO;
 import com.allan.task.manager.email.EmailService;
+import com.allan.task.manager.passwordreset.dto.ResetPasswordRequestDTO;
 import com.allan.task.manager.user.UserModel;
 import com.allan.task.manager.user.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -41,7 +42,37 @@ public class PasswordResetService {
     }
 
     @Transactional
-    public void generatePasswordResetCode(ResetPasswordRequestDTO dto) {
+    public void resetPassword(ResetPasswordRequestDTO request) {
+
+        String normalizedEmail = request.email()
+                .trim()
+                .toLowerCase(Locale.ROOT);
+
+        UserModel user = userRepository
+                .findByEmailAndIsActiveTrue(normalizedEmail)
+                .orElseThrow(InvalidPasswordResetException::new);
+
+        PasswordResetModel passwordReset = passwordResetRepository
+                .findByUser(user)
+                .orElseThrow(InvalidPasswordResetException::new);
+
+        validatePasswordReset(
+                passwordReset,
+                request.code()
+        );
+
+        user.setPassword(
+                passwordEncoder.encode(request.newPassword())
+        );
+
+        passwordReset.setUsedAt(LocalDateTime.now());
+
+        userRepository.save(user);
+        passwordResetRepository.save(passwordReset);
+    }
+
+    @Transactional
+    public void generatePasswordResetCode(ForgotPasswordRequestDTO dto) {
 
         String normalizedEmail = dto.email()
                 .trim()
@@ -72,6 +103,38 @@ public class PasswordResetService {
         passwordResetRepository.save(passwordReset);
 
         sendPasswordResetEmail(user, code);
+    }
+
+    private void validatePasswordReset(
+            PasswordResetModel passwordReset,
+            String code
+    ) {
+        if (passwordReset.getUsedAt() != null) {
+            throw new InvalidPasswordResetException();
+        }
+
+        if (passwordReset.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new InvalidPasswordResetException();
+        }
+
+        if (passwordReset.getAttempts() >= 3) {
+            throw new InvalidPasswordResetException();
+        }
+
+        boolean codeMatches = passwordEncoder.matches(
+                code.trim().toUpperCase(Locale.ROOT),
+                passwordReset.getCodeHash()
+        );
+
+        if (!codeMatches) {
+            passwordReset.setAttempts(
+                    passwordReset.getAttempts() + 1
+            );
+
+            passwordResetRepository.save(passwordReset);
+
+            throw new InvalidPasswordResetException();
+        }
     }
 
     private String generateCode() {

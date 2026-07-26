@@ -1,9 +1,9 @@
-package com.allan.task.manager.auth.dto;
+package com.allan.task.manager.passwordreset.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-public record ResetPasswordRequestDTO(
+public record ForgotPasswordRequestDTO(
 
         @NotBlank
         @Email
