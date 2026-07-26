@@ -4,6 +4,7 @@ import com.allan.task.manager.user.exception.UserNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -24,6 +25,10 @@ public class UserLookupService {
     public UserModel findActiveById(UUID id) {
         return userRepository.findByIdAndIsActiveTrue(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
+    }
+
+    public Optional<UserModel> findOptionalActiveByEmail(String email) {
+        return userRepository.findByEmailAndIsActiveTrue(email);
     }
 
     public List<UserModel> findAllByIds(Set<UUID> ids) {

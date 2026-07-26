@@ -1,10 +1,10 @@
 package com.allan.task.manager.passwordreset;
 
 import com.allan.task.manager.passwordreset.dto.ForgotPasswordRequestDTO;
-import com.allan.task.manager.email.EmailService;
 import com.allan.task.manager.passwordreset.dto.ResetPasswordRequestDTO;
+import com.allan.task.manager.passwordreset.exception.InvalidPasswordResetException;
 import com.allan.task.manager.user.UserModel;
-import com.allan.task.manager.user.UserRepository;
+import com.allan.task.manager.user.UserLookupService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,35 +21,36 @@ public class PasswordResetService {
 
     private static final int CODE_LENGTH = 7;
     private static final int EXPIRATION_MINUTES = 10;
+    private static final int MAX_ATTEMPTS = 3;
 
     private final SecureRandom secureRandom = new SecureRandom();
 
     private final PasswordEncoder passwordEncoder;
-    private final UserRepository userRepository;
-    private final EmailService emailService;
+    private final UserLookupService userLookupService;
+    private final PasswordResetEmailService passwordResetEmailService;
     private final PasswordResetRepository passwordResetRepository;
 
     public PasswordResetService(
             PasswordEncoder passwordEncoder,
-            UserRepository userRepository,
-            EmailService emailService,
+            UserLookupService userLookupService,
+            PasswordResetEmailService passwordResetEmailService,
             PasswordResetRepository passwordResetRepository
     ) {
         this.passwordEncoder = passwordEncoder;
-        this.userRepository = userRepository;
-        this.emailService = emailService;
+        this.userLookupService = userLookupService;
+        this.passwordResetEmailService = passwordResetEmailService;
         this.passwordResetRepository = passwordResetRepository;
     }
 
-    @Transactional
+    @Transactional(
+            noRollbackFor = InvalidPasswordResetException.class
+    )
     public void resetPassword(ResetPasswordRequestDTO request) {
 
-        String normalizedEmail = request.email()
-                .trim()
-                .toLowerCase(Locale.ROOT);
+        String normalizedEmail = normalizeEmail(request.email());
 
-        UserModel user = userRepository
-                .findByEmailAndIsActiveTrue(normalizedEmail)
+        UserModel user = userLookupService
+                .findOptionalActiveByEmail(normalizedEmail)
                 .orElseThrow(InvalidPasswordResetException::new);
 
         PasswordResetModel passwordReset = passwordResetRepository
@@ -67,19 +68,15 @@ public class PasswordResetService {
 
         passwordReset.setUsedAt(LocalDateTime.now());
 
-        userRepository.save(user);
-        passwordResetRepository.save(passwordReset);
     }
 
     @Transactional
     public void generatePasswordResetCode(ForgotPasswordRequestDTO dto) {
 
-        String normalizedEmail = dto.email()
-                .trim()
-                .toLowerCase(Locale.ROOT);
+        String normalizedEmail = normalizeEmail(dto.email());
 
-        UserModel user = userRepository
-                .findByEmailAndIsActiveTrue(normalizedEmail)
+        UserModel user = userLookupService
+                .findOptionalActiveByEmail(normalizedEmail)
                 .orElse(null);
 
         if (user == null) {
@@ -102,7 +99,11 @@ public class PasswordResetService {
 
         passwordResetRepository.save(passwordReset);
 
-        sendPasswordResetEmail(user, code);
+        passwordResetEmailService.sendPasswordReset(
+                user,
+                code,
+                EXPIRATION_MINUTES
+        );
     }
 
     private void validatePasswordReset(
@@ -117,12 +118,12 @@ public class PasswordResetService {
             throw new InvalidPasswordResetException();
         }
 
-        if (passwordReset.getAttempts() >= 3) {
+        if (passwordReset.getAttempts() >= MAX_ATTEMPTS) {
             throw new InvalidPasswordResetException();
         }
 
         boolean codeMatches = passwordEncoder.matches(
-                code.trim().toUpperCase(Locale.ROOT),
+                normalizeCode(code),
                 passwordReset.getCodeHash()
         );
 
@@ -150,51 +151,11 @@ public class PasswordResetService {
         return code.toString();
     }
 
-    private void sendPasswordResetEmail(
-            UserModel user,
-            String code
-    ) {
-        String html = """
-                <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-                    <h2>Recuperação de senha</h2>
+    private String normalizeEmail(String email) {
+        return email.trim().toLowerCase(Locale.ROOT);
+    }
 
-                    <p>Olá, %s!</p>
-
-                    <p>
-                        Recebemos uma solicitação para redefinir
-                        a senha da sua conta no AllanFlow.
-                    </p>
-
-                    <p>Seu código de recuperação é:</p>
-
-                    <div style="
-                        font-size: 28px;
-                        font-weight: bold;
-                        letter-spacing: 6px;
-                        margin: 24px 0;
-                    ">
-                        %s
-                    </div>
-
-                    <p>
-                        Este código expira em %d minutos.
-                    </p>
-
-                    <p>
-                        Caso você não tenha solicitado a recuperação,
-                        ignore este e-mail.
-                    </p>
-                </div>
-                """.formatted(
-                user.getName(),
-                code,
-                EXPIRATION_MINUTES
-        );
-
-        emailService.send(
-                user.getEmail(),
-                "Código de recuperação de senha - AllanFlow",
-                html
-        );
+    private String normalizeCode(String code) {
+        return code.trim().toUpperCase(Locale.ROOT);
     }
 }
