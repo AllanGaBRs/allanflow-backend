@@ -32,3 +32,6 @@ email:
   resend:
     api-key: ${RESEND_API_KEY}
     from: ${RESEND_FROM}
+
+app:
+  frontend-url: ${FRONTEND_URL}
