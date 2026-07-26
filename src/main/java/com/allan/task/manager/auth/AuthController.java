@@ -1,16 +1,16 @@
 package com.allan.task.manager.auth;
 
+import com.allan.task.manager.auth.dto.ResetPasswordRequestDTO;
+import com.allan.task.manager.passwordreset.PasswordResetService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +18,12 @@ import java.util.Map;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
+
+    private final PasswordResetService passwordResetService;
+
+    public AuthController(PasswordResetService passwordResetService) {
+        this.passwordResetService = passwordResetService;
+    }
 
     @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping("/me")
@@ -32,5 +38,14 @@ public class AuthController {
         user.put("authorities", jwt.getClaimAsStringList("authorities"));
 
         return ResponseEntity.ok(user);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(
+            @RequestBody @Valid ResetPasswordRequestDTO dto
+    ) {
+        passwordResetService.generatePasswordResetCode(dto);
+
+        return ResponseEntity.noContent().build();
     }
 }

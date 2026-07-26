@@ -3,6 +3,7 @@ package com.allan.task.manager.passwordreset;
 import com.allan.task.manager.shared.Auditable;
 import com.allan.task.manager.user.UserModel;
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -14,6 +15,11 @@ import java.util.UUID;
                 @Index(name = "idx_password_reset_user", columnList = "user_id")
         }
 )
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class PasswordResetModel extends Auditable {
 
     @Id
