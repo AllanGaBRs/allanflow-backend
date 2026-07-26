@@ -68,6 +68,7 @@ public class ResourceServerConfig {
                         "/auth/forgot-password",
                         "/auth/reset-password"
                 ).permitAll()
+                .requestMatchers(HttpMethod.GET, "/invitations/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/users").permitAll()
                 .anyRequest().authenticated()
         );
