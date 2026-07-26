@@ -24,7 +24,7 @@ public class MembershipController {
         this.membershipService = membershipService;
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    /*@PreAuthorize("hasRole('ROLE_USER')")
     @PostMapping
     public ResponseEntity<MembershipResponseDTO> addMember(
             @PathVariable UUID workspaceId,
@@ -40,7 +40,7 @@ public class MembershipController {
         );
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
+    }*/
 
     @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping

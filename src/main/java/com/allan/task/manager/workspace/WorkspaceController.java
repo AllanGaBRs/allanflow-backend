@@ -3,6 +3,8 @@ package com.allan.task.manager.workspace;
 import com.allan.task.manager.workspace.dto.WorkspaceCreateDTO;
 import com.allan.task.manager.workspace.dto.WorkspaceResponseDTO;
 import com.allan.task.manager.workspace.dto.WorkspaceUpdateDTO;
+import com.allan.task.manager.workspaceinvitation.WorkspaceInvitationService;
+import com.allan.task.manager.workspaceinvitation.dto.WorkspaceInvitationRequestDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +21,15 @@ import java.util.UUID;
 public class WorkspaceController {
 
     private final WorkspaceService workspaceService;
+    private final WorkspaceInvitationService workspaceInvitationService;
 
-    public WorkspaceController(WorkspaceService workspaceService) {
+    public WorkspaceController(
+            WorkspaceService workspaceService,
+            WorkspaceInvitationService workspaceInvitationService
+    ) {
         this.workspaceService = workspaceService;
+        this.workspaceInvitationService = workspaceInvitationService;
     }
-
     @PreAuthorize("hasRole('ROLE_USER')")
     @PostMapping
     public ResponseEntity<WorkspaceResponseDTO> create(
@@ -80,6 +86,23 @@ public class WorkspaceController {
             @AuthenticationPrincipal Jwt jwt
     ) {
         workspaceService.delete(workspaceId, jwt.getSubject());
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @PostMapping("/{workspaceId}/invitations")
+    public ResponseEntity<Void> invite(
+            @PathVariable UUID workspaceId,
+            @RequestBody @Valid WorkspaceInvitationRequestDTO dto,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
+        workspaceInvitationService.invite(
+                workspaceId,
+                requesterId,
+                dto
+        );
 
         return ResponseEntity.noContent().build();
     }
