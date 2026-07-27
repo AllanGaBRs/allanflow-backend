@@ -2,6 +2,7 @@ package com.allan.task.manager.auth;
 
 import com.allan.task.manager.auth.dto.LoginRequestDTO;
 import com.allan.task.manager.auth.dto.LoginResponseDTO;
+import com.allan.task.manager.auth.dto.LoginResultDTO;
 import com.allan.task.manager.passwordreset.dto.ForgotPasswordRequestDTO;
 import com.allan.task.manager.passwordreset.PasswordResetService;
 import com.allan.task.manager.passwordreset.dto.ResetPasswordRequestDTO;
@@ -42,7 +43,7 @@ public class AuthController {
             @Valid @RequestBody LoginRequestDTO request,
             HttpServletResponse response
     ) {
-        AuthService.LoginResult result = authService.login(request);
+        LoginResultDTO result = authService.login(request);
 
         ResponseCookie accessTokenCookie = ResponseCookie
                 .from("access_token", result.accessToken())

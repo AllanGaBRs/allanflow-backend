@@ -2,6 +2,7 @@ package com.allan.task.manager.auth;
 
 import com.allan.task.manager.auth.dto.LoginRequestDTO;
 import com.allan.task.manager.auth.dto.LoginResponseDTO;
+import com.allan.task.manager.auth.dto.LoginResultDTO;
 import com.allan.task.manager.user.UserModel;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,7 +23,7 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
-    public LoginResult login(LoginRequestDTO request) {
+    public LoginResultDTO login(LoginRequestDTO request) {
         String email = request.email()
                 .trim()
                 .toLowerCase();
@@ -46,17 +47,10 @@ public class AuthService {
                 user.getEmail()
         );
 
-        return new LoginResult(
+        return new LoginResultDTO(
                 accessToken,
                 jwtService.getJwtDurationSeconds(),
                 response
         );
-    }
-
-    public record LoginResult(
-            String accessToken,
-            long expiresIn,
-            LoginResponseDTO user
-    ) {
     }
 }
