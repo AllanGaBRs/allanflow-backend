@@ -1,10 +1,16 @@
 package com.allan.task.manager.auth;
 
+import com.allan.task.manager.auth.dto.LoginRequestDTO;
+import com.allan.task.manager.auth.dto.LoginResponseDTO;
 import com.allan.task.manager.passwordreset.dto.ForgotPasswordRequestDTO;
 import com.allan.task.manager.passwordreset.PasswordResetService;
 import com.allan.task.manager.passwordreset.dto.ResetPasswordRequestDTO;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,9 +25,40 @@ import java.util.Map;
 public class AuthController {
 
     private final PasswordResetService passwordResetService;
+    private final AuthService authService;
+    private final boolean cookieSecure;
 
-    public AuthController(PasswordResetService passwordResetService) {
+
+    public AuthController(PasswordResetService passwordResetService,
+                          AuthService authService,
+                          @Value("${security.cookie.secure:false}") boolean cookieSecure) {
         this.passwordResetService = passwordResetService;
+        this.authService = authService;
+        this.cookieSecure = cookieSecure;
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDTO> login(
+            @Valid @RequestBody LoginRequestDTO request,
+            HttpServletResponse response
+    ) {
+        AuthService.LoginResult result = authService.login(request);
+
+        ResponseCookie accessTokenCookie = ResponseCookie
+                .from("access_token", result.accessToken())
+                .httpOnly(true)
+                .secure(cookieSecure)
+                .sameSite("Lax")
+                .path("/")
+                .maxAge(result.expiresIn())
+                .build();
+
+        response.addHeader(
+                HttpHeaders.SET_COOKIE,
+                accessTokenCookie.toString()
+        );
+
+        return ResponseEntity.ok(result.user());
     }
 
     @PreAuthorize("hasAuthority('ROLE_USER')")

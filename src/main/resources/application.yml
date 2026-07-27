@@ -9,12 +9,12 @@ spring:
     open-in-view: false
 
 security:
-  client-id: ${CLIENT_ID}
-  client-secret: ${CLIENT_SECRET}
   jwt:
     duration: ${JWT_DURATION}
     private-key-base64: ${JWT_PRIVATE_KEY_BASE64}
     public-key-base64: ${JWT_PUBLIC_KEY_BASE64}
+  cookie:
+    secure: ${COOKIE_SECURE}
 
 cors:
   origins: ${CORS_ORIGINS}
