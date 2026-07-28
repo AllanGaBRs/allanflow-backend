@@ -30,7 +30,8 @@ public class WorkspaceController {
         this.workspaceService = workspaceService;
         this.workspaceInvitationService = workspaceInvitationService;
     }
-    @PreAuthorize("hasRole('ROLE_USER')")
+
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @PostMapping
     public ResponseEntity<WorkspaceResponseDTO> create(
             @RequestBody @Valid WorkspaceCreateDTO dto,
@@ -43,7 +44,7 @@ public class WorkspaceController {
                 .body(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping("/me")
     public ResponseEntity<List<WorkspaceResponseDTO>> findMyWorkspaces(
             @AuthenticationPrincipal Jwt jwt
@@ -54,7 +55,7 @@ public class WorkspaceController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping("/{workspaceId}")
     public ResponseEntity<WorkspaceResponseDTO> findById(
             @PathVariable UUID workspaceId,
@@ -66,7 +67,7 @@ public class WorkspaceController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @PutMapping("/{workspaceId}")
     public ResponseEntity<WorkspaceResponseDTO> update(
             @PathVariable UUID workspaceId,
@@ -79,7 +80,7 @@ public class WorkspaceController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @DeleteMapping("/{workspaceId}")
     public ResponseEntity<Void> delete(
             @PathVariable UUID workspaceId,
@@ -90,7 +91,7 @@ public class WorkspaceController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @PostMapping("/{workspaceId}/invitations")
     public ResponseEntity<Void> invite(
             @PathVariable UUID workspaceId,

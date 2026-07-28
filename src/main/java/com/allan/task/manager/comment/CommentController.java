@@ -24,7 +24,7 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @PostMapping
     public ResponseEntity<CommentResponseDTO> create(
             @PathVariable UUID workspaceId,
@@ -48,7 +48,7 @@ public class CommentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @PutMapping("/{commentId}")
     public ResponseEntity<CommentResponseDTO> update(
             @PathVariable UUID workspaceId,
@@ -74,7 +74,7 @@ public class CommentController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping("/{commentId}")
     public ResponseEntity<CommentResponseDTO> findById(
             @PathVariable UUID workspaceId,
@@ -98,7 +98,7 @@ public class CommentController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping
     public ResponseEntity<List<CommentResponseDTO>> findAllByTask(
             @PathVariable UUID workspaceId,
@@ -120,7 +120,7 @@ public class CommentController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> delete(
             @PathVariable UUID workspaceId,

@@ -27,7 +27,7 @@ public class ChecklistController {
         this.checklistService = checklistService;
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @PostMapping
     public ResponseEntity<ChecklistResponseDTO> create(
             @PathVariable UUID workspaceId,
@@ -51,7 +51,7 @@ public class ChecklistController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping
     public ResponseEntity<List<ChecklistResponseDTO>> findAllByTask(
             @PathVariable UUID workspaceId,
@@ -73,7 +73,7 @@ public class ChecklistController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @PutMapping("/{checklistId}")
     public ResponseEntity<ChecklistResponseDTO> update(
             @PathVariable UUID workspaceId,
@@ -99,7 +99,7 @@ public class ChecklistController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @DeleteMapping("/{checklistId}")
     public ResponseEntity<Void> delete(
             @PathVariable UUID workspaceId,
@@ -123,7 +123,7 @@ public class ChecklistController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @PostMapping("/{checklistId}/items")
     public ResponseEntity<ChecklistItemResponseDTO> createItem(
             @PathVariable UUID workspaceId,
@@ -149,7 +149,7 @@ public class ChecklistController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @PatchMapping("/{checklistId}/items/{itemId}")
     public ResponseEntity<ChecklistItemResponseDTO> updateItem(
             @PathVariable UUID workspaceId,
@@ -177,7 +177,7 @@ public class ChecklistController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @DeleteMapping("/{checklistId}/items/{itemId}")
     public ResponseEntity<Void> deleteItem(
             @PathVariable UUID workspaceId,

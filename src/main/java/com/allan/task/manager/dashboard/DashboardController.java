@@ -22,7 +22,7 @@ public class DashboardController {
         this.dashboardService = dashboardService;
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping
     public ResponseEntity<DashboardResponseDTO> find(
             @PathVariable UUID workspaceId,

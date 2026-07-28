@@ -38,7 +38,7 @@ public class WorkspaceInvitationController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @PostMapping("/{invitationId}/accept")
     public ResponseEntity<Void> accept(
             @PathVariable UUID invitationId,

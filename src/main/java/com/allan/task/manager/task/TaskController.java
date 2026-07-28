@@ -26,7 +26,7 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @PostMapping
     public ResponseEntity<TaskResponseDTO> create(
             @PathVariable UUID workspaceId,
@@ -50,7 +50,7 @@ public class TaskController {
                 .body(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @PutMapping("/{taskId}")
     public ResponseEntity<TaskResponseDTO> update(
             @PathVariable UUID workspaceId,
@@ -74,7 +74,7 @@ public class TaskController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping("/{taskId}")
     public ResponseEntity<TaskResponseDTO> findById(
             @PathVariable UUID workspaceId,
@@ -96,7 +96,7 @@ public class TaskController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @DeleteMapping("/{taskId}")
     public ResponseEntity<Void> delete(
             @PathVariable UUID workspaceId,
@@ -118,7 +118,7 @@ public class TaskController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping
     public ResponseEntity<List<TaskResponseDTO>> findAllByColumn(
             @PathVariable UUID workspaceId,
@@ -138,7 +138,7 @@ public class TaskController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @PatchMapping("/{taskId}/move")
     public ResponseEntity<TaskResponseDTO> moveTask(
             @PathVariable UUID workspaceId,

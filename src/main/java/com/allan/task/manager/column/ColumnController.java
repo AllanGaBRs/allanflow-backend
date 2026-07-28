@@ -31,7 +31,7 @@ public class ColumnController {
         this.columnService = columnService;
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @PostMapping
     public ResponseEntity<ColumnResponseDTO> create(
             @PathVariable UUID workspaceId,
@@ -46,7 +46,7 @@ public class ColumnController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping
     public ResponseEntity<List<ColumnResponseDTO>> findAll(
             @PathVariable UUID workspaceId,
@@ -60,7 +60,7 @@ public class ColumnController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping("/{columnId}")
     public ResponseEntity<ColumnResponseDTO> findById(
             @PathVariable UUID workspaceId,
@@ -75,7 +75,7 @@ public class ColumnController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @PutMapping("/{columnId}")
     public ResponseEntity<ColumnResponseDTO> update(
             @PathVariable UUID workspaceId,
@@ -91,7 +91,7 @@ public class ColumnController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @DeleteMapping("/{columnId}")
     public ResponseEntity<Void> delete(
             @PathVariable UUID workspaceId,

@@ -24,7 +24,7 @@ public class LabelController {
         this.labelService = labelService;
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @PostMapping
     public ResponseEntity<LabelResponseDTO> create(
             @PathVariable UUID workspaceId,
@@ -40,7 +40,7 @@ public class LabelController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @PutMapping("/{labelId}")
     public ResponseEntity<LabelResponseDTO> update(
             @PathVariable UUID workspaceId,
@@ -57,7 +57,7 @@ public class LabelController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping("/{labelId}")
     public ResponseEntity<LabelResponseDTO> findById(
             @PathVariable UUID workspaceId,
@@ -73,7 +73,7 @@ public class LabelController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping
     public ResponseEntity<List<LabelResponseDTO>> findAll(
             @PathVariable UUID workspaceId,
@@ -88,7 +88,7 @@ public class LabelController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @DeleteMapping("/{labelId}")
     public ResponseEntity<Void> delete(
             @PathVariable UUID workspaceId,

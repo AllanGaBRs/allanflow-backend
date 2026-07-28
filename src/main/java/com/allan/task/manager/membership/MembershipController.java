@@ -42,7 +42,7 @@ public class MembershipController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }*/
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping
     public ResponseEntity<List<MembershipResponseDTO>> findMembers(
             @PathVariable UUID workspaceId,
@@ -58,7 +58,7 @@ public class MembershipController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @PutMapping("/{userId}")
     public ResponseEntity<MembershipResponseDTO> updateRole(
             @PathVariable UUID workspaceId,
@@ -78,7 +78,7 @@ public class MembershipController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @DeleteMapping("/{userId}")
     public ResponseEntity<Void> removeMember(
             @PathVariable UUID workspaceId,

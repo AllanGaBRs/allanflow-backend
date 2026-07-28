@@ -26,7 +26,7 @@ public class ClientController {
         this.clientService = clientService;
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @PostMapping
     public ResponseEntity<ClientResponseDTO> create(
             @PathVariable UUID workspaceId,
@@ -41,7 +41,7 @@ public class ClientController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @PutMapping("/{clientId}")
     public ResponseEntity<ClientResponseDTO> update(
             @PathVariable UUID workspaceId,
@@ -57,7 +57,7 @@ public class ClientController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping("/{clientId}")
     public ResponseEntity<ClientResponseDTO> findById(
             @PathVariable UUID workspaceId,
@@ -72,7 +72,7 @@ public class ClientController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping
     public ResponseEntity<List<ClientResponseDTO>> findAll(
             @PathVariable UUID workspaceId,
@@ -86,7 +86,7 @@ public class ClientController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @DeleteMapping("/{clientId}")
     public ResponseEntity<Void> delete(
             @PathVariable UUID workspaceId,

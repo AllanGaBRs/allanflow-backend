@@ -31,7 +31,7 @@ public class BoardController {
         this.boardService = boardService;
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @PostMapping
     public ResponseEntity<BoardResponseDTO> create(
             @PathVariable UUID workspaceId,
@@ -45,7 +45,7 @@ public class BoardController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping
     public ResponseEntity<List<BoardResponseDTO>> findAll(
             @PathVariable UUID workspaceId,
@@ -58,7 +58,7 @@ public class BoardController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping("/{boardId}")
     public ResponseEntity<BoardResponseDTO> findById(
             @PathVariable UUID workspaceId,
@@ -72,7 +72,7 @@ public class BoardController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @PutMapping("/{boardId}")
     public ResponseEntity<BoardResponseDTO> update(
             @PathVariable UUID workspaceId,
@@ -87,7 +87,7 @@ public class BoardController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @DeleteMapping("/{boardId}")
     public ResponseEntity<Void> delete(
             @PathVariable UUID workspaceId,
