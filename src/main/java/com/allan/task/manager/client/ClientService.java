@@ -39,19 +39,25 @@ public class ClientService {
             UUID workspaceId,
             ClientCreateDTO dto,
             UUID requesterId
-    ){
+    ) {
         workspacePermissionService.requireMember(workspaceId, requesterId);
 
-        WorkspaceModel workspace = workspaceLookupService.findActiveById(workspaceId);
+        WorkspaceModel workspace =
+                workspaceLookupService.findActiveById(workspaceId);
+
+        String name = dto.name().trim();
+        String email = normalize(dto.email());
+        String phone = normalize(dto.phone());
+        String company = normalize(dto.company());
 
         if (!dto.forceCreate()) {
-
-            List<ClientModel> duplicates = clientRepository.findPossibleDuplicates(
-                    workspace,
-                    dto.name(),
-                    dto.email(),
-                    dto.phone()
-            );
+            List<ClientModel> duplicates =
+                    clientRepository.findPossibleDuplicates(
+                            workspace,
+                            name,
+                            email,
+                            phone
+                    );
 
             if (!duplicates.isEmpty()) {
                 throw new DuplicateClientException(
@@ -59,18 +65,19 @@ public class ClientService {
                 );
             }
         }
+
         ClientModel client = new ClientModel();
 
-        client.setName(dto.name());
-        client.setEmail(dto.email());
-        client.setPhone(dto.phone());
-        client.setCompany(dto.company());
+        client.setName(name);
+        client.setEmail(email);
+        client.setPhone(phone);
+        client.setCompany(company);
         client.setWorkspace(workspace);
 
         client = clientRepository.save(client);
 
         return ClientMapper.toResponse(client);
-   }
+    }
 
     @Transactional
     public ClientResponseDTO update(
@@ -81,21 +88,27 @@ public class ClientService {
     ) {
         workspacePermissionService.requireMember(workspaceId, requesterId);
 
-        WorkspaceModel workspace = workspaceLookupService.findActiveById(workspaceId);
+        WorkspaceModel workspace =
+                workspaceLookupService.findActiveById(workspaceId);
 
         ClientModel client = clientLookupService.findInWorkspace(
                 workspaceId,
                 clientId
         );
 
+        String name = dto.name().trim();
+        String email = normalize(dto.email());
+        String phone = normalize(dto.phone());
+        String company = normalize(dto.company());
+
         if (!dto.forceUpdate()) {
             List<ClientModel> duplicates =
                     clientRepository.findPossibleDuplicatesExcludingClient(
                             workspace,
                             clientId,
-                            dto.name(),
-                            dto.email(),
-                            dto.phone()
+                            name,
+                            email,
+                            phone
                     );
 
             if (!duplicates.isEmpty()) {
@@ -105,10 +118,10 @@ public class ClientService {
             }
         }
 
-        client.setName(dto.name());
-        client.setEmail(dto.email());
-        client.setPhone(dto.phone());
-        client.setCompany(dto.company());
+        client.setName(name);
+        client.setEmail(email);
+        client.setPhone(phone);
+        client.setCompany(company);
 
         return ClientMapper.toResponse(client);
     }
@@ -155,5 +168,13 @@ public class ClientService {
         ClientModel client = clientLookupService.findInWorkspace(workspaceId, clientId);
 
         clientRepository.delete(client);
+    }
+
+    private String normalize(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+
+        return value.trim();
     }
 }

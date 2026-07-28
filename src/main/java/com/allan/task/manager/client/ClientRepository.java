@@ -13,15 +13,18 @@ import java.util.UUID;
 public interface ClientRepository extends JpaRepository<ClientModel, UUID> {
 
     @Query("""
-        SELECT c
-        FROM ClientModel c
-        WHERE c.workspace = :workspace
-        AND (
-            (:name IS NOT NULL AND LOWER(c.name) = LOWER(:name))
-            OR (:email IS NOT NULL AND c.email = :email)
-            OR (:phone IS NOT NULL AND c.phone = :phone)
-        )
-    """)
+    SELECT c
+    FROM ClientModel c
+    WHERE c.workspace = :workspace
+      AND (
+          (:name IS NOT NULL
+              AND LOWER(c.name) = LOWER(:name))
+          OR (:email IS NOT NULL
+              AND LOWER(c.email) = LOWER(:email))
+          OR (:phone IS NOT NULL
+              AND c.phone = :phone)
+      )
+""")
     List<ClientModel> findPossibleDuplicates(
             WorkspaceModel workspace,
             String name,
@@ -30,16 +33,19 @@ public interface ClientRepository extends JpaRepository<ClientModel, UUID> {
     );
 
     @Query("""
-        SELECT c
-        FROM ClientModel c
-        WHERE c.workspace = :workspace
-          AND c.id <> :clientId
-          AND (
-              (:name IS NOT NULL AND LOWER(c.name) = LOWER(:name))
-              OR (:email IS NOT NULL AND LOWER(c.email) = LOWER(:email))
-              OR (:phone IS NOT NULL AND c.phone = :phone)
-          )
-    """)
+    SELECT c
+    FROM ClientModel c
+    WHERE c.workspace = :workspace
+      AND c.id <> :clientId
+      AND (
+          (:name IS NOT NULL
+              AND LOWER(c.name) = LOWER(:name))
+          OR (:email IS NOT NULL
+              AND LOWER(c.email) = LOWER(:email))
+          OR (:phone IS NOT NULL
+              AND c.phone = :phone)
+      )
+""")
     List<ClientModel> findPossibleDuplicatesExcludingClient(
             WorkspaceModel workspace,
             UUID clientId,
@@ -47,7 +53,6 @@ public interface ClientRepository extends JpaRepository<ClientModel, UUID> {
             String email,
             String phone
     );
-
     Optional<ClientModel> findByIdAndWorkspaceId(UUID clientId, UUID workspaceId);
 
     List<ClientModel> findAllByWorkspaceId(UUID workspaceId);
