@@ -26,4 +26,6 @@ public interface UserRepository extends JpaRepository<UserModel, UUID> {
 
     Optional<UserModel> findByEmailAndIsActiveTrue(String email);
 
+    Optional<UserModel> findByGoogleSubject(String googleSubject);
+
 }

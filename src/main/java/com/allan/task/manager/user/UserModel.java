@@ -48,6 +48,10 @@ public class UserModel extends Auditable implements UserDetails {
 
     @Column(nullable = false, unique = true)
     private String email;
+
+    @Column(name = "google_subject", unique = true)
+    private String googleSubject;
+
     private String password;
 
     @ManyToMany(mappedBy = "assignees")

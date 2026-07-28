@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
+import com.allan.task.manager.auth.GoogleLoginSuccessHandler;
 import com.allan.task.manager.shared.dto.CustomError;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
@@ -72,16 +73,14 @@ public class SecurityConfig {
     @Bean
     @Order(2)
     public SecurityFilterChain securityFilterChain(
-            HttpSecurity http
+            HttpSecurity http,
+            GoogleLoginSuccessHandler googleLoginSuccessHandler
     ) throws Exception {
 
-        http
-                .csrf(csrf -> csrf.disable())
-
+        http.csrf(csrf -> csrf.disable())
                 .cors(cors ->
                         cors.configurationSource(corsConfigurationSource())
                 )
-
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
                                 "/swagger-ui.html",
@@ -89,20 +88,24 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/auth/login",
                                 "/auth/forgot-password",
-                                "/auth/reset-password"
+                                "/auth/reset-password",
+                                "/oauth2/**",
+                                "/login/oauth2/**"
                         ).permitAll()
-
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/invitations/**"
                         ).permitAll()
-
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/users"
                         ).permitAll()
-
                         .anyRequest().authenticated()
+
+                )
+
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(googleLoginSuccessHandler)
                 )
 
                 .oauth2ResourceServer(oauth2 -> oauth2
