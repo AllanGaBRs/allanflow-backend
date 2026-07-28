@@ -29,21 +29,13 @@ public abstract class IntegrationTest {
     @Autowired
     protected ObjectMapper objectMapper;
 
-    @Value("${security.client-id}")
-    private String clientId;
-
-    @Value("${security.client-secret}")
-    private String clientSecret;
-
     protected ApiTestHelper apiTestHelper;
 
     @BeforeEach
     protected void setUpApiTestHelper() {
         apiTestHelper = new ApiTestHelper(
                 mockMvc,
-                objectMapper,
-                clientId,
-                clientSecret
+                objectMapper
         );
     }
 
