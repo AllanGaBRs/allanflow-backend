@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.security.core.AuthenticationException;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -185,6 +186,23 @@ public class ControllerExceptionHandler {
         );
 
         return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<CustomError> handleAuthenticationException(
+            AuthenticationException exception,
+            HttpServletRequest request
+    ) {
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
+
+        CustomError error = new CustomError(
+                Instant.now(),
+                status.value(),
+                "Invalid email or password.",
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(status).body(error);
     }
 
     @ExceptionHandler(Exception.class)
