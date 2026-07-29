@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -53,34 +54,42 @@ public class GoogleLoginSuccessHandler
         String email = oidcUser.getEmail();
         String name = oidcUser.getFullName();
 
-        UserModel user =
-                googleLoginService.findOrCreateGoogleUser(
-                        googleSubject,
-                        email,
-                        name
-                );
+        try {
+            UserModel user =
+                    googleLoginService.findOrCreateGoogleUser(
+                            googleSubject,
+                            email,
+                            name
+                    );
 
-        String accessToken =
-                jwtService.generateAccessToken(user);
+            String accessToken =
+                    jwtService.generateAccessToken(user);
 
-        ResponseCookie.ResponseCookieBuilder cookieBuilder =
-                ResponseCookie.from("access_token", accessToken)
-                        .httpOnly(true)
-                        .secure(cookieSecure)
-                        .sameSite("Lax")
-                        .path("/")
-                        .maxAge(jwtService.getJwtDurationSeconds());
+            ResponseCookie.ResponseCookieBuilder cookieBuilder =
+                    ResponseCookie.from("access_token", accessToken)
+                            .httpOnly(true)
+                            .secure(cookieSecure)
+                            .sameSite("Lax")
+                            .path("/")
+                            .maxAge(jwtService.getJwtDurationSeconds());
 
-        if (!cookieDomain.isBlank()) {
-            cookieBuilder.domain(cookieDomain);
+            if (!cookieDomain.isBlank()) {
+                cookieBuilder.domain(cookieDomain);
+            }
+
+            ResponseCookie cookie = cookieBuilder.build();
+
+            response.addHeader(
+                    HttpHeaders.SET_COOKIE,
+                    cookie.toString()
+            );
+
+            response.sendRedirect(frontendUrl);
+
+        } catch (DisabledException exception) {
+            response.sendRedirect(
+                    frontendUrl + "/login?error=account_disabled"
+            );
         }
-
-        ResponseCookie cookie = cookieBuilder.build();
-
-        response.addHeader(
-                HttpHeaders.SET_COOKIE,
-                cookie.toString()
-        );
-        response.sendRedirect(frontendUrl);
     }
 }
