@@ -1,5 +1,6 @@
-package com.allan.task.manager.auth;
+package com.allan.task.manager.auth.oauth2;
 
+import com.allan.task.manager.auth.jwt.JwtService;
 import com.allan.task.manager.user.UserModel;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

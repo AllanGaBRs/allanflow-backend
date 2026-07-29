@@ -1,4 +1,4 @@
-package com.allan.task.manager.auth;
+package com.allan.task.manager.auth.jwt;
 
 import com.allan.task.manager.user.UserModel;
 import org.springframework.beans.factory.annotation.Value;

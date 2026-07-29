@@ -4,7 +4,8 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
-import com.allan.task.manager.auth.GoogleLoginSuccessHandler;
+import com.allan.task.manager.auth.oauth2.GoogleLoginSuccessHandler;
+import com.allan.task.manager.auth.ratelimit.RateLimitFilter;
 import com.allan.task.manager.shared.dto.CustomError;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
@@ -12,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -27,6 +29,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -74,7 +77,8 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
-            GoogleLoginSuccessHandler googleLoginSuccessHandler
+            GoogleLoginSuccessHandler googleLoginSuccessHandler,
+            RateLimitFilter rateLimitFilter
     ) throws Exception {
 
         http.csrf(csrf -> csrf.disable())
@@ -103,11 +107,13 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
 
                 )
-
+                .addFilterBefore(
+                        rateLimitFilter,
+                        BearerTokenAuthenticationFilter.class
+                )
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler(googleLoginSuccessHandler)
                 )
-
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .bearerTokenResolver(bearerTokenResolver())
                         .authenticationEntryPoint(authenticationEntryPoint())
@@ -272,5 +278,17 @@ public class SecurityConfig {
         );
 
         return source;
+    }
+
+    @Bean
+    public FilterRegistrationBean<RateLimitFilter> rateLimitFilterRegistration(
+            RateLimitFilter rateLimitFilter
+    ) {
+        FilterRegistrationBean<RateLimitFilter> registration =
+                new FilterRegistrationBean<>(rateLimitFilter);
+
+        registration.setEnabled(false);
+
+        return registration;
     }
 }

@@ -3,6 +3,7 @@ package com.allan.task.manager.auth;
 import com.allan.task.manager.auth.dto.LoginRequestDTO;
 import com.allan.task.manager.auth.dto.LoginResponseDTO;
 import com.allan.task.manager.auth.dto.LoginResultDTO;
+import com.allan.task.manager.auth.jwt.JwtService;
 import com.allan.task.manager.user.UserModel;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

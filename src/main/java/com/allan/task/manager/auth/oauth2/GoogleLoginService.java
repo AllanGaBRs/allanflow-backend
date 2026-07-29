@@ -1,4 +1,4 @@
-package com.allan.task.manager.auth;
+package com.allan.task.manager.auth.oauth2;
 
 import com.allan.task.manager.user.UserModel;
 import com.allan.task.manager.user.UserRepository;
