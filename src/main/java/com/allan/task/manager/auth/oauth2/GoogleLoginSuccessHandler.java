@@ -23,17 +23,20 @@ public class GoogleLoginSuccessHandler
     private final JwtService jwtService;
     private final boolean cookieSecure;
     private final String frontendUrl;
+    private final String cookieDomain;
 
     public GoogleLoginSuccessHandler(
             GoogleLoginService googleLoginService,
             JwtService jwtService,
             @Value("${security.cookie.secure}") boolean cookieSecure,
-            @Value("${app.frontend-url}") String frontendUrl
+            @Value("${app.frontend-url}") String frontendUrl,
+            @Value("${security.cookie.domain:}") String cookieDomain
     ) {
         this.googleLoginService = googleLoginService;
         this.jwtService = jwtService;
         this.cookieSecure = cookieSecure;
         this.frontendUrl = frontendUrl;
+        this.cookieDomain = cookieDomain;
     }
 
     @Override
@@ -60,14 +63,19 @@ public class GoogleLoginSuccessHandler
         String accessToken =
                 jwtService.generateAccessToken(user);
 
-        ResponseCookie cookie = ResponseCookie
-                .from("access_token", accessToken)
-                .httpOnly(true)
-                .secure(cookieSecure)
-                .path("/")
-                .maxAge(jwtService.getJwtDurationSeconds())
-                .sameSite("Lax")
-                .build();
+        ResponseCookie.ResponseCookieBuilder cookieBuilder =
+                ResponseCookie.from("access_token", accessToken)
+                        .httpOnly(true)
+                        .secure(cookieSecure)
+                        .sameSite("Lax")
+                        .path("/")
+                        .maxAge(jwtService.getJwtDurationSeconds());
+
+        if (!cookieDomain.isBlank()) {
+            cookieBuilder.domain(cookieDomain);
+        }
+
+        ResponseCookie cookie = cookieBuilder.build();
 
         response.addHeader(
                 HttpHeaders.SET_COOKIE,

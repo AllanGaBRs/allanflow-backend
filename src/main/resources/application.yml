@@ -27,6 +27,7 @@ security:
     public-key-base64: ${JWT_PUBLIC_KEY_BASE64}
   cookie:
     secure: ${COOKIE_SECURE}
+    domain: ${COOKIE_DOMAIN}
 
 cors:
   origins: ${CORS_ORIGINS}
