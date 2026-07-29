@@ -17,7 +17,7 @@ public class GoogleLoginService {
             String name
     ) {
         UserModel user = userRepository
-                .findByGoogleSubject(googleSubject)
+                .findByGoogleSubjectAndIsActiveTrue(googleSubject)
                 .orElse(null);
 
         if (user != null) {
