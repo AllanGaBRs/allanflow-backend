@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Locale;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,14 +32,15 @@ public class UserService {
 
     @Transactional
     public UserResponseDTO register(UserRegisterDTO dto) {
+        String email = normalizeEmail(dto.email());
 
-        if (userRepository.existsByEmail(dto.email())) {
+        if (userRepository.existsByEmail(email)) {
             throw new UserAlreadyExistsException("Email already in use");
         }
 
         UserModel user = new UserModel();
         user.setName(dto.name());
-        user.setEmail(dto.email());
+        user.setEmail(email);
         user.setPassword(passwordEncoder.encode(dto.password()));
         user.setRole(UserModel.Role.ROLE_USER);
         user.setActive(true);
@@ -62,12 +64,13 @@ public class UserService {
     @Transactional
     public UserResponseDTO update(UUID id, UserUpdateDTO dto) {
         UserModel user = userLookupService.findActiveById(id);
+        String email = dto.email() != null ? normalizeEmail(dto.email()) : null;
 
-        if (dto.email() != null && !dto.email().equals(user.getEmail())) {
-            if (userRepository.existsByEmail(dto.email())) {
+        if (email != null && !email.equals(user.getEmail())) {
+            if (userRepository.existsByEmail(email)) {
                 throw new UserAlreadyExistsException("Email already in use");
             }
-            user.setEmail(dto.email());
+            user.setEmail(email);
         }
 
         if (dto.name() != null) {
@@ -104,5 +107,9 @@ public class UserService {
         user.setActive(false);
 
         userRepository.save(user);
+    }
+
+    private String normalizeEmail(String email) {
+        return email.trim().toLowerCase(Locale.ROOT);
     }
 }
