@@ -48,3 +48,9 @@ email:
 
 app:
   frontend-url: ${FRONTEND_URL}
+
+integration:
+  n8n:
+    chat-webhook: ${N8N_CHAT_WEBHOOK}
+    connect-timeout: ${N8N_CONNECT_TIMEOUT:3s}
+    read-timeout: ${N8N_READ_TIMEOUT:30s}
