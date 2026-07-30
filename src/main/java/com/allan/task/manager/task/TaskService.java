@@ -1,5 +1,6 @@
 package com.allan.task.manager.task;
 
+import com.allan.task.manager.board.BoardLookupService;
 import com.allan.task.manager.board.BoardPermissionService;
 import com.allan.task.manager.client.ClientLookupService;
 import com.allan.task.manager.client.ClientModel;
@@ -34,11 +35,13 @@ public class TaskService {
     private final ClientLookupService clientLookupService;
     private final WorkspacePermissionService workspacePermissionService;
     private final TaskLookupService taskLookupService;
+    private final BoardLookupService boardLookupService;
 
     public TaskService(
             TaskRepository taskRepository,
             MembershipLookupService membershipLookupService,
             BoardPermissionService boardPermissionService,
+            BoardLookupService boardLookupService,
             LabelLookupService labelLookupService,
             ColumnLookupService columnLookupService,
             ClientLookupService clientLookupService,
@@ -48,6 +51,7 @@ public class TaskService {
         this.taskRepository = taskRepository;
         this.membershipLookupService = membershipLookupService;
         this.boardPermissionService = boardPermissionService;
+        this.boardLookupService = boardLookupService;
         this.labelLookupService = labelLookupService;
         this.columnLookupService = columnLookupService;
         this.clientLookupService = clientLookupService;
@@ -158,6 +162,29 @@ public class TaskService {
         return TaskMapper.toResponse(
                 taskRepository.save(task)
         );
+    }
+
+    @Transactional(readOnly = true)
+    public List<TaskResponseDTO> findAllByBoard(
+            UUID workspaceId,
+            UUID boardId,
+            UUID requesterId
+    ) {
+        boardLookupService.findInWorkspace(workspaceId, boardId);
+
+        boardPermissionService.requireBoardAccess(
+                workspaceId,
+                boardId,
+                requesterId
+        );
+
+        List<TaskModel> tasks =
+                taskRepository.findAllByBoardOrdered(
+                        workspaceId,
+                        boardId
+                );
+
+        return TaskMapper.toResponseList(tasks);
     }
 
     @Transactional(readOnly = true)

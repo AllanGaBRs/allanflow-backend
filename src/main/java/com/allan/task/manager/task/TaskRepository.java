@@ -49,6 +49,20 @@ public interface TaskRepository extends JpaRepository<TaskModel, UUID> {
             UUID columnId
     );
 
+    @Query("""
+        SELECT t
+        FROM TaskModel t
+        JOIN t.column c
+        WHERE t.workspace.id = :workspaceId
+          AND t.board.id = :boardId
+          AND t.archived = false
+        ORDER BY c.position ASC, t.position ASC
+    """)
+    List<TaskModel> findAllByBoardOrdered(
+            UUID workspaceId,
+            UUID boardId
+    );
+
     List<TaskModel> findAllByWorkspaceIdAndBoardIdAndColumnIdOrderByPositionAsc(
             UUID workspaceId,
             UUID boardId,
