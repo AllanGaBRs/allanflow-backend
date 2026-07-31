@@ -24,7 +24,7 @@ public class BoardMemberController {
         this.boardMemberService = boardMemberService;
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping
     public ResponseEntity<List<BoardMemberResponseDTO>> findMembers(
             @PathVariable UUID workspaceId,
@@ -38,7 +38,7 @@ public class BoardMemberController {
         );
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @PostMapping
     public ResponseEntity<BoardMemberResponseDTO> addMember(
             @PathVariable UUID workspaceId,
@@ -58,7 +58,7 @@ public class BoardMemberController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @DeleteMapping("/{userId}")
     public ResponseEntity<Void> removeMember(
             @PathVariable UUID workspaceId,

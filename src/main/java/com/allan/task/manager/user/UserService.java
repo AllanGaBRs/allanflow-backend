@@ -50,41 +50,24 @@ public class UserService {
         return UserMapper.toResponse(savedUser);
     }
 
-    @Transactional(readOnly = true)
-    public List<UserResponseDTO> findAll() {
-        return UserMapper.toResponseList(userRepository.findAllByIsActiveTrue());
-    }
-
-    @Transactional(readOnly = true)
-    public UserResponseDTO findById(UUID id) {
-        UserModel user = userLookupService.findActiveById(id);
-        return UserMapper.toResponse(user);
-    }
-
     @Transactional
-    public UserResponseDTO update(UUID id, UserUpdateDTO dto) {
+    public UserResponseDTO updateName(UUID id, UserUpdateDTO dto) {
         UserModel user = userLookupService.findActiveById(id);
-        String email = dto.email() != null ? normalizeEmail(dto.email()) : null;
 
-        if (email != null && !email.equals(user.getEmail())) {
-            if (userRepository.existsByEmail(email)) {
-                throw new UserAlreadyExistsException("Email already in use");
-            }
-            user.setEmail(email);
-        }
+        user.setName(dto.name().trim());
 
-        if (dto.name() != null) {
-            user.setName(dto.name());
-        }
-
-        UserModel updatedUser = userRepository.save(user);
-
-        return UserMapper.toResponse(updatedUser);
+        return UserMapper.toResponse(user);
     }
 
     @Transactional
     public void changePassword(UUID id, UserChangePasswordDTO dto) {
         UserModel user = userLookupService.findActiveById(id);
+
+        if (user.getPassword() == null) {
+            throw new InvalidPasswordException(
+                    "This account does not have a local password"
+            );
+        }
 
         boolean passwordMatches = passwordEncoder.matches(
                 dto.currentPassword(),
@@ -92,19 +75,14 @@ public class UserService {
         );
 
         if (!passwordMatches) {
-            throw new InvalidPasswordException("Current password is incorrect");
+            throw new InvalidPasswordException(
+                    "Current password is incorrect"
+            );
         }
 
-        user.setPassword(passwordEncoder.encode(dto.newPassword()));
-
-        userRepository.save(user);
-    }
-
-    @Transactional
-    public void delete(UUID id) {
-        UserModel user = userLookupService.findActiveById(id);
-
-        user.setActive(false);
+        user.setPassword(
+                passwordEncoder.encode(dto.newPassword())
+        );
 
         userRepository.save(user);
     }

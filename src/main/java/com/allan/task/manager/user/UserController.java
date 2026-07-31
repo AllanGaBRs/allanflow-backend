@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,40 +34,25 @@ public class UserController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_USER')")
-    @GetMapping
-    public ResponseEntity<List<UserResponseDTO>> findAll() {
-        return ResponseEntity.ok(userService.findAll());
-    }
-
-    @PreAuthorize("hasAuthority('ROLE_USER')")
-    @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> findById(@PathVariable UUID id) {
-        return ResponseEntity.ok(userService.findById(id));
-    }
-
-    @PreAuthorize("hasAuthority('ROLE_USER')")
-    @PutMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> update(
-            @PathVariable UUID id,
+    @PatchMapping("/me")
+    public ResponseEntity<UserResponseDTO> updateMe(
+            @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody UserUpdateDTO dto
     ) {
-        return ResponseEntity.ok(userService.update(id, dto));
+        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
+        return ResponseEntity.ok(userService.updateName(requesterId, dto));
     }
 
     @PreAuthorize("hasAuthority('ROLE_USER')")
-    @PatchMapping("/{id}/password")
+    @PatchMapping("/me/password")
     public ResponseEntity<Void> changePassword(
-            @PathVariable UUID id,
+            @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody UserChangePasswordDTO dto
     ) {
-        userService.changePassword(id, dto);
-        return ResponseEntity.noContent().build();
-    }
+        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
 
-    @PreAuthorize("hasAuthority('ROLE_USER')")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        userService.delete(id);
+        userService.changePassword(requesterId, dto);
+
         return ResponseEntity.noContent().build();
     }
 }
