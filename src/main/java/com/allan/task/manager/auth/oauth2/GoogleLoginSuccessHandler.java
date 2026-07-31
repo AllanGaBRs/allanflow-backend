@@ -1,6 +1,7 @@
 package com.allan.task.manager.auth.oauth2;
 
 import com.allan.task.manager.auth.jwt.JwtService;
+import com.allan.task.manager.config.app.AppProperties;
 import com.allan.task.manager.user.UserModel;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,20 +24,20 @@ public class GoogleLoginSuccessHandler
     private final GoogleLoginService googleLoginService;
     private final JwtService jwtService;
     private final boolean cookieSecure;
-    private final String frontendUrl;
+    private final AppProperties appProperties;
     private final String cookieDomain;
 
     public GoogleLoginSuccessHandler(
             GoogleLoginService googleLoginService,
             JwtService jwtService,
+            AppProperties appProperties,
             @Value("${security.cookie.secure}") boolean cookieSecure,
-            @Value("${app.frontend-url}") String frontendUrl,
             @Value("${security.cookie.domain:}") String cookieDomain
     ) {
         this.googleLoginService = googleLoginService;
         this.jwtService = jwtService;
         this.cookieSecure = cookieSecure;
-        this.frontendUrl = frontendUrl;
+        this.appProperties = appProperties;
         this.cookieDomain = cookieDomain;
     }
 
@@ -46,7 +47,6 @@ public class GoogleLoginSuccessHandler
             HttpServletResponse response,
             Authentication authentication
     ) throws IOException, ServletException {
-
         OidcUser oidcUser =
                 (OidcUser) authentication.getPrincipal();
 
@@ -84,11 +84,11 @@ public class GoogleLoginSuccessHandler
                     cookie.toString()
             );
 
-            response.sendRedirect(frontendUrl);
+            response.sendRedirect(appProperties.frontendUrl());
 
         } catch (DisabledException exception) {
             response.sendRedirect(
-                    frontendUrl + "/login?error=account_disabled"
+                    appProperties.frontendUrl() + "/login?error=account_disabled"
             );
         }
     }
