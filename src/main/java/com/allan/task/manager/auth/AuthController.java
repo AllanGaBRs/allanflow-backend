@@ -72,6 +72,7 @@ public class AuthController {
         Map<String, Object> user = new HashMap<>();
         user.put("id", jwt.getClaimAsString("userId"));
         user.put("email", jwt.getSubject());
+        user.put("name", jwt.getClaimAsString("name"));
         user.put("authorities", jwt.getClaimAsStringList("authorities"));
 
         return ResponseEntity.ok(user);
