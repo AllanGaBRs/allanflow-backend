@@ -23,21 +23,15 @@ public class AuditorAwareImpl implements AuditorAware<String> {
         }
 
         if (authentication instanceof JwtAuthenticationToken jwtAuth) {
-            Jwt jwt = jwtAuth.getToken();
+            String userId = jwtAuth
+                    .getToken()
+                    .getClaimAsString("userId");
 
-            String subject = jwt.getSubject();
-
-            if (subject != null && !subject.isBlank()) {
-                return Optional.of(subject);
+            if (userId != null && !userId.isBlank()) {
+                return Optional.of(userId);
             }
         }
 
-        String name = authentication.getName();
-
-        if (name == null || name.isBlank()) {
-            return Optional.of("SYSTEM");
-        }
-
-        return Optional.of(name);
+        return Optional.of("SYSTEM");
     }
 }
