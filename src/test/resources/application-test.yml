@@ -24,6 +24,8 @@ security:
   client-secret: test-secret
   jwt:
     duration: 3600
+  rate-limit:
+    enabled: false
 
 cors:
   origins: http://localhost:3000

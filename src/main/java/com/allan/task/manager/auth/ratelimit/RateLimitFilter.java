@@ -5,6 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -19,15 +20,23 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private final RateLimitService rateLimitService;
     private final RateLimitRuleResolver ruleResolver;
     private final ObjectMapper objectMapper;
+    private final boolean enabled;
 
     public RateLimitFilter(
             RateLimitService rateLimitService,
             RateLimitRuleResolver ruleResolver,
-            ObjectMapper objectMapper
+            ObjectMapper objectMapper,
+            @Value("${security.rate-limit.enabled:true}") boolean enabled
     ) {
         this.rateLimitService = rateLimitService;
         this.ruleResolver = ruleResolver;
         this.objectMapper = objectMapper;
+        this.enabled = enabled;
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return !enabled;
     }
 
     @Override
