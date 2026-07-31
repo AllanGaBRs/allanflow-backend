@@ -1,5 +1,6 @@
 package com.allan.task.manager.workspace;
 
+import com.allan.task.manager.config.annotation.CurrentUserId;
 import com.allan.task.manager.workspace.dto.WorkspaceCreateDTO;
 import com.allan.task.manager.workspace.dto.WorkspaceResponseDTO;
 import com.allan.task.manager.workspace.dto.WorkspaceUpdateDTO;
@@ -35,9 +36,9 @@ public class WorkspaceController {
     @PostMapping
     public ResponseEntity<WorkspaceResponseDTO> create(
             @RequestBody @Valid WorkspaceCreateDTO dto,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        WorkspaceResponseDTO response = workspaceService.create(dto, jwt.getSubject());
+        WorkspaceResponseDTO response = workspaceService.create(dto, requesterId);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -47,10 +48,11 @@ public class WorkspaceController {
     @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping("/me")
     public ResponseEntity<List<WorkspaceResponseDTO>> findMyWorkspaces(
-            @AuthenticationPrincipal Jwt jwt
+            @AuthenticationPrincipal Jwt jwt,
+            @CurrentUserId UUID requesterId
     ) {
         List<WorkspaceResponseDTO> response =
-                workspaceService.findMyWorkspaces(jwt.getSubject());
+                workspaceService.findMyWorkspaces(requesterId);
 
         return ResponseEntity.ok(response);
     }
@@ -59,10 +61,11 @@ public class WorkspaceController {
     @GetMapping("/{workspaceId}")
     public ResponseEntity<WorkspaceResponseDTO> findById(
             @PathVariable UUID workspaceId,
-            @AuthenticationPrincipal Jwt jwt
+            @AuthenticationPrincipal Jwt jwt,
+            @CurrentUserId UUID requesterId
     ) {
         WorkspaceResponseDTO response =
-                workspaceService.findById(workspaceId, jwt.getSubject());
+                workspaceService.findById(workspaceId, requesterId);
 
         return ResponseEntity.ok(response);
     }
@@ -72,10 +75,11 @@ public class WorkspaceController {
     public ResponseEntity<WorkspaceResponseDTO> update(
             @PathVariable UUID workspaceId,
             @RequestBody @Valid WorkspaceUpdateDTO dto,
-            @AuthenticationPrincipal Jwt jwt
+            @AuthenticationPrincipal Jwt jwt,
+            @CurrentUserId UUID requesterId
     ) {
         WorkspaceResponseDTO response =
-                workspaceService.update(workspaceId, dto, jwt.getSubject());
+                workspaceService.update(workspaceId, dto, requesterId);
 
         return ResponseEntity.ok(response);
     }
@@ -84,9 +88,10 @@ public class WorkspaceController {
     @DeleteMapping("/{workspaceId}")
     public ResponseEntity<Void> delete(
             @PathVariable UUID workspaceId,
-            @AuthenticationPrincipal Jwt jwt
+            @AuthenticationPrincipal Jwt jwt,
+            @CurrentUserId UUID requesterId
     ) {
-        workspaceService.delete(workspaceId, jwt.getSubject());
+        workspaceService.delete(workspaceId, requesterId);
 
         return ResponseEntity.noContent().build();
     }
@@ -96,9 +101,8 @@ public class WorkspaceController {
     public ResponseEntity<Void> invite(
             @PathVariable UUID workspaceId,
             @RequestBody @Valid WorkspaceInvitationRequestDTO dto,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
         workspaceInvitationService.invite(
                 workspaceId,
                 requesterId,

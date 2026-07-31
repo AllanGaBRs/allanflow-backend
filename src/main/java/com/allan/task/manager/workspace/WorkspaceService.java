@@ -41,8 +41,8 @@ public class WorkspaceService {
     }
 
     @Transactional
-    public WorkspaceResponseDTO create(WorkspaceCreateDTO dto, String authenticatedUserEmail) {
-        UserModel owner = userLookupService.findActiveByEmail(authenticatedUserEmail);
+    public WorkspaceResponseDTO create(WorkspaceCreateDTO dto, UUID requesterId) {
+        UserModel owner = userLookupService.findActiveById(requesterId);
 
         WorkspaceModel workspace = new WorkspaceModel();
         workspace.setName(dto.name());
@@ -63,19 +63,20 @@ public class WorkspaceService {
     }
 
     @Transactional(readOnly = true)
-    public List<WorkspaceResponseDTO> findMyWorkspaces(String authenticatedUserEmail) {
-        UserModel user = userLookupService.findActiveByEmail(authenticatedUserEmail);
-
+    public List<WorkspaceResponseDTO> findMyWorkspaces(UUID requesterId) {
         List<MembershipModel> memberships =
-                membershipRepository.findActiveMembershipsByUserId(user.getId());
+                membershipRepository.findActiveMembershipsByUserId(
+                        requesterId
+                );
 
         return WorkspaceMapper.toResponseList(memberships);
     }
 
     @Transactional(readOnly = true)
-    public WorkspaceResponseDTO findById(UUID workspaceId, String authenticatedUserEmail) {
-        UserModel user = userLookupService.findActiveByEmail(authenticatedUserEmail);
-        MembershipModel membership = workspacePermissionService.requireMember(workspaceId, user.getId());
+    public WorkspaceResponseDTO findById(UUID workspaceId, UUID requesterId) {
+        MembershipModel membership = workspacePermissionService
+                .requireMember(workspaceId, requesterId);
+
         WorkspaceModel workspace = workspaceLookupService.findActiveById(workspaceId);
 
         return WorkspaceMapper.toResponse(workspace, membership);
@@ -85,10 +86,11 @@ public class WorkspaceService {
     public WorkspaceResponseDTO update(
             UUID workspaceId,
             WorkspaceUpdateDTO dto,
-            String authenticatedUserEmail
+            UUID requesterId
     ) {
-        UserModel user = userLookupService.findActiveByEmail(authenticatedUserEmail);
-        MembershipModel membership = workspacePermissionService.requireOwnerOrAdmin(workspaceId, user.getId());
+        MembershipModel membership = workspacePermissionService
+                .requireOwnerOrAdmin(workspaceId, requesterId);
+
         WorkspaceModel workspace = workspaceLookupService.findActiveById(workspaceId);
 
         if (dto.name() != null && !dto.name().isBlank()) {
@@ -102,9 +104,9 @@ public class WorkspaceService {
     }
 
     @Transactional
-    public void delete(UUID workspaceId, String authenticatedUserEmail) {
-        UserModel user = userLookupService.findActiveByEmail(authenticatedUserEmail);
-        workspacePermissionService.requireOwner(workspaceId, user.getId());
+    public void delete(UUID workspaceId,  UUID requesterId) {
+        workspacePermissionService.requireOwner(workspaceId, requesterId);
+
         WorkspaceModel workspace = workspaceLookupService.findActiveById(workspaceId);
 
         workspace.setActive(false);
