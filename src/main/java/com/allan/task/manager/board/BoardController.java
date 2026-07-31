@@ -3,6 +3,7 @@ package com.allan.task.manager.board;
 import com.allan.task.manager.board.dto.BoardCreateDTO;
 import com.allan.task.manager.board.dto.BoardResponseDTO;
 import com.allan.task.manager.board.dto.BoardUpdateDTO;
+import com.allan.task.manager.config.annotation.CurrentUserId;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,12 +37,9 @@ public class BoardController {
     public ResponseEntity<BoardResponseDTO> create(
             @PathVariable UUID workspaceId,
             @RequestBody @Valid BoardCreateDTO dto,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         BoardResponseDTO response = boardService.createBoard(dto, workspaceId, requesterId);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -49,12 +47,9 @@ public class BoardController {
     @GetMapping
     public ResponseEntity<List<BoardResponseDTO>> findAll(
             @PathVariable UUID workspaceId,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         List<BoardResponseDTO> response = boardService.findAll(workspaceId, requesterId);
-
         return ResponseEntity.ok(response);
     }
 
@@ -63,12 +58,9 @@ public class BoardController {
     public ResponseEntity<BoardResponseDTO> findById(
             @PathVariable UUID workspaceId,
             @PathVariable UUID boardId,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         BoardResponseDTO response = boardService.findById(workspaceId, boardId, requesterId);
-
         return ResponseEntity.ok(response);
     }
 
@@ -78,12 +70,9 @@ public class BoardController {
             @PathVariable UUID workspaceId,
             @PathVariable UUID boardId,
             @RequestBody @Valid BoardUpdateDTO dto,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         BoardResponseDTO response = boardService.update(workspaceId, boardId, dto, requesterId);
-
         return ResponseEntity.ok(response);
     }
 
@@ -92,12 +81,9 @@ public class BoardController {
     public ResponseEntity<Void> delete(
             @PathVariable UUID workspaceId,
             @PathVariable UUID boardId,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         boardService.delete(workspaceId, boardId, requesterId);
-
         return ResponseEntity.noContent().build();
     }
 }

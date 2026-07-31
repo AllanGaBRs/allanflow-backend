@@ -1,5 +1,6 @@
 package com.allan.task.manager.workspaceinvitation;
 
+import com.allan.task.manager.config.annotation.CurrentUserId;
 import com.allan.task.manager.workspaceinvitation.dto.WorkspaceInvitationAcceptDTO;
 import com.allan.task.manager.workspaceinvitation.dto.WorkspaceInvitationResponseDTO;
 import jakarta.validation.Valid;
@@ -43,16 +44,13 @@ public class WorkspaceInvitationController {
     public ResponseEntity<Void> accept(
             @PathVariable UUID invitationId,
             @RequestBody @Valid WorkspaceInvitationAcceptDTO request,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID authenticatedUserId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         workspaceInvitationService.accept(
                 invitationId,
-                authenticatedUserId,
+                requesterId,
                 request
         );
-
         return ResponseEntity.noContent().build();
     }
 }

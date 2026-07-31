@@ -3,6 +3,7 @@ package com.allan.task.manager.column;
 import com.allan.task.manager.column.dto.ColumnCreateDTO;
 import com.allan.task.manager.column.dto.ColumnResponseDTO;
 import com.allan.task.manager.column.dto.ColumnUpdateDTO;
+import com.allan.task.manager.config.annotation.CurrentUserId;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,12 +38,9 @@ public class ColumnController {
             @PathVariable UUID workspaceId,
             @PathVariable UUID boardId,
             @RequestBody @Valid ColumnCreateDTO dto,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         ColumnResponseDTO response = columnService.create(workspaceId, boardId, dto, requesterId);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -51,12 +49,9 @@ public class ColumnController {
     public ResponseEntity<List<ColumnResponseDTO>> findAll(
             @PathVariable UUID workspaceId,
             @PathVariable UUID boardId,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         List<ColumnResponseDTO> response = columnService.findAll(workspaceId, boardId, requesterId);
-
         return ResponseEntity.ok(response);
     }
 
@@ -66,12 +61,9 @@ public class ColumnController {
             @PathVariable UUID workspaceId,
             @PathVariable UUID boardId,
             @PathVariable UUID columnId,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         ColumnResponseDTO response = columnService.findById(workspaceId, boardId, columnId, requesterId);
-
         return ResponseEntity.ok(response);
     }
 
@@ -82,12 +74,9 @@ public class ColumnController {
             @PathVariable UUID boardId,
             @PathVariable UUID columnId,
             @RequestBody @Valid ColumnUpdateDTO dto,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         ColumnResponseDTO response = columnService.update(workspaceId, boardId, columnId, dto, requesterId);
-
         return ResponseEntity.ok(response);
     }
 
@@ -97,12 +86,9 @@ public class ColumnController {
             @PathVariable UUID workspaceId,
             @PathVariable UUID boardId,
             @PathVariable UUID columnId,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         columnService.delete(workspaceId, boardId, columnId, requesterId);
-
         return ResponseEntity.noContent().build();
     }
 }

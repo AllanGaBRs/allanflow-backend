@@ -1,5 +1,6 @@
 package com.allan.task.manager.membership;
 
+import com.allan.task.manager.config.annotation.CurrentUserId;
 import com.allan.task.manager.membership.dto.MembershipCreateDTO;
 import com.allan.task.manager.membership.dto.MembershipResponseDTO;
 import com.allan.task.manager.membership.dto.MembershipUpdateRoleDTO;
@@ -46,15 +47,12 @@ public class MembershipController {
     @GetMapping
     public ResponseEntity<List<MembershipResponseDTO>> findMembers(
             @PathVariable UUID workspaceId,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         List<MembershipResponseDTO> response = membershipService.findMembers(
                 workspaceId,
                 requesterId
         );
-
         return ResponseEntity.ok(response);
     }
 
@@ -64,17 +62,14 @@ public class MembershipController {
             @PathVariable UUID workspaceId,
             @PathVariable UUID userId,
             @RequestBody @Valid MembershipUpdateRoleDTO dto,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         MembershipResponseDTO response = membershipService.updateRole(
                 workspaceId,
                 userId,
                 dto,
                 requesterId
         );
-
         return ResponseEntity.ok(response);
     }
 
@@ -83,16 +78,13 @@ public class MembershipController {
     public ResponseEntity<Void> removeMember(
             @PathVariable UUID workspaceId,
             @PathVariable UUID userId,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         membershipService.removeMember(
                 workspaceId,
                 userId,
                 requesterId
         );
-
         return ResponseEntity.noContent().build();
     }
 }

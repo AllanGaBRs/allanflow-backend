@@ -1,5 +1,6 @@
 package com.allan.task.manager.dashboard;
 
+import com.allan.task.manager.config.annotation.CurrentUserId;
 import com.allan.task.manager.dashboard.dto.DashboardResponseDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,11 +27,9 @@ public class DashboardController {
     @GetMapping
     public ResponseEntity<DashboardResponseDTO> find(
             @PathVariable UUID workspaceId,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
         DashboardResponseDTO response = dashboardService.find(workspaceId, requesterId);
-
         return ResponseEntity.ok(response);
     }
 }

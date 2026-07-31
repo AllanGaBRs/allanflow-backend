@@ -1,5 +1,6 @@
 package com.allan.task.manager.task;
 
+import com.allan.task.manager.config.annotation.CurrentUserId;
 import com.allan.task.manager.task.dto.TaskCreateDTO;
 import com.allan.task.manager.task.dto.TaskMoveDTO;
 import com.allan.task.manager.task.dto.TaskResponseDTO;
@@ -33,10 +34,8 @@ public class TaskController {
             @PathVariable UUID boardId,
             @PathVariable UUID columnId,
             @RequestBody @Valid TaskCreateDTO dto,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         TaskResponseDTO response = taskService.create(
                 dto,
                 workspaceId,
@@ -44,7 +43,6 @@ public class TaskController {
                 columnId,
                 requesterId
         );
-
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
@@ -58,10 +56,8 @@ public class TaskController {
             @PathVariable UUID columnId,
             @PathVariable UUID taskId,
             @RequestBody @Valid TaskUpdateDTO dto,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         TaskResponseDTO response = taskService.update(
                 workspaceId,
                 boardId,
@@ -70,7 +66,6 @@ public class TaskController {
                 dto,
                 requesterId
         );
-
         return ResponseEntity.ok(response);
     }
 
@@ -103,10 +98,8 @@ public class TaskController {
             @PathVariable UUID boardId,
             @PathVariable UUID columnId,
             @PathVariable UUID taskId,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         taskService.delete(
                 workspaceId,
                 boardId,
@@ -114,7 +107,6 @@ public class TaskController {
                 taskId,
                 requesterId
         );
-
         return ResponseEntity.noContent().build();
     }
 
@@ -124,17 +116,14 @@ public class TaskController {
             @PathVariable UUID workspaceId,
             @PathVariable UUID boardId,
             @PathVariable UUID columnId,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         List<TaskResponseDTO> response = taskService.findAllByColumn(
                 workspaceId,
                 boardId,
                 columnId,
                 requesterId
         );
-
         return ResponseEntity.ok(response);
     }
 
@@ -146,10 +135,8 @@ public class TaskController {
             @PathVariable UUID columnId,
             @PathVariable UUID taskId,
             @RequestBody @Valid TaskMoveDTO dto,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         TaskResponseDTO response = taskService.moveTask(
                 workspaceId,
                 boardId,
@@ -158,7 +145,6 @@ public class TaskController {
                 dto,
                 requesterId
         );
-
         return ResponseEntity.ok(response);
     }
 }

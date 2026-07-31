@@ -1,5 +1,6 @@
 package com.allan.task.manager.user;
 
+import com.allan.task.manager.config.annotation.CurrentUserId;
 import com.allan.task.manager.user.dto.UserChangePasswordDTO;
 import com.allan.task.manager.user.dto.UserRegisterDTO;
 import com.allan.task.manager.user.dto.UserResponseDTO;
@@ -36,23 +37,19 @@ public class UserController {
     @PreAuthorize("hasAuthority('ROLE_USER')")
     @PatchMapping("/me")
     public ResponseEntity<UserResponseDTO> updateMe(
-            @AuthenticationPrincipal Jwt jwt,
-            @Valid @RequestBody UserUpdateDTO dto
+            @Valid @RequestBody UserUpdateDTO dto,
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
         return ResponseEntity.ok(userService.updateName(requesterId, dto));
     }
 
     @PreAuthorize("hasAuthority('ROLE_USER')")
     @PatchMapping("/me/password")
     public ResponseEntity<Void> changePassword(
-            @AuthenticationPrincipal Jwt jwt,
-            @Valid @RequestBody UserChangePasswordDTO dto
+            @Valid @RequestBody UserChangePasswordDTO dto,
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         userService.changePassword(requesterId, dto);
-
         return ResponseEntity.noContent().build();
     }
 }

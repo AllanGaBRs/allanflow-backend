@@ -2,6 +2,7 @@ package com.allan.task.manager.ai;
 
 import com.allan.task.manager.ai.dto.AIRequestDTO;
 import com.allan.task.manager.ai.dto.AIResponseDTO;
+import com.allan.task.manager.config.annotation.CurrentUserId;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,9 +27,8 @@ public class AIController {
     @PostMapping("/chat")
     public ResponseEntity<AIResponseDTO> chat(
             @Valid @RequestBody AIRequestDTO request,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
         return ResponseEntity.ok(
                 aiService.chat(
                         request,

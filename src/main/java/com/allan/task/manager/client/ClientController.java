@@ -3,6 +3,7 @@ package com.allan.task.manager.client;
 import com.allan.task.manager.client.dto.ClientCreateDTO;
 import com.allan.task.manager.client.dto.ClientResponseDTO;
 import com.allan.task.manager.client.dto.ClientUpdateDTO;
+import com.allan.task.manager.config.annotation.CurrentUserId;
 import com.allan.task.manager.label.dto.LabelResponseDTO;
 import com.allan.task.manager.label.dto.LabelUpdateDTO;
 import jakarta.validation.Valid;
@@ -31,13 +32,10 @@ public class ClientController {
     public ResponseEntity<ClientResponseDTO> create(
             @PathVariable UUID workspaceId,
             @RequestBody @Valid ClientCreateDTO dto,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         ClientResponseDTO response =
                 clientService.create(workspaceId, dto, requesterId);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -47,10 +45,8 @@ public class ClientController {
             @PathVariable UUID workspaceId,
             @PathVariable UUID clientId,
             @RequestBody @Valid ClientUpdateDTO dto,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         ClientResponseDTO response =
                 clientService.update(workspaceId, clientId, dto, requesterId);
 
@@ -62,13 +58,10 @@ public class ClientController {
     public ResponseEntity<ClientResponseDTO> findById(
             @PathVariable UUID workspaceId,
             @PathVariable UUID clientId,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         ClientResponseDTO response =
                 clientService.findById(workspaceId, clientId, requesterId);
-
         return ResponseEntity.ok(response);
     }
 
@@ -76,13 +69,10 @@ public class ClientController {
     @GetMapping
     public ResponseEntity<List<ClientResponseDTO>> findAll(
             @PathVariable UUID workspaceId,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         List<ClientResponseDTO> response =
                 clientService.findAll(workspaceId, requesterId);
-
         return ResponseEntity.ok(response);
     }
 
@@ -91,12 +81,9 @@ public class ClientController {
     public ResponseEntity<Void> delete(
             @PathVariable UUID workspaceId,
             @PathVariable UUID clientId,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         clientService.delete(workspaceId, clientId, requesterId);
-
         return ResponseEntity.noContent().build();
     }
 }

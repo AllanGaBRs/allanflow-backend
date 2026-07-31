@@ -1,5 +1,6 @@
 package com.allan.task.manager.task;
 
+import com.allan.task.manager.config.annotation.CurrentUserId;
 import com.allan.task.manager.task.dto.TaskResponseDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,18 +26,13 @@ public class BoardTaskController {
     public ResponseEntity<List<TaskResponseDTO>> findAllByBoard(
             @PathVariable UUID workspaceId,
             @PathVariable UUID boardId,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(
-                jwt.getClaimAsString("userId")
-        );
-
         List<TaskResponseDTO> response = taskService.findAllByBoard(
                 workspaceId,
                 boardId,
                 requesterId
         );
-
         return ResponseEntity.ok(response);
     }
 }

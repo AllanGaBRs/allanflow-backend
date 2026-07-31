@@ -3,6 +3,7 @@ package com.allan.task.manager.comment;
 import com.allan.task.manager.comment.dto.CommentCreateDTO;
 import com.allan.task.manager.comment.dto.CommentResponseDTO;
 import com.allan.task.manager.comment.dto.CommentUpdateDTO;
+import com.allan.task.manager.config.annotation.CurrentUserId;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,10 +33,8 @@ public class CommentController {
             @PathVariable UUID columnId,
             @PathVariable UUID taskId,
             @RequestBody @Valid CommentCreateDTO dto,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         CommentResponseDTO response = commentService.create(
                 workspaceId,
                 boardId,
@@ -44,7 +43,6 @@ public class CommentController {
                 dto,
                 requesterId
         );
-
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -57,10 +55,8 @@ public class CommentController {
             @PathVariable UUID taskId,
             @PathVariable UUID commentId,
             @RequestBody @Valid CommentUpdateDTO dto,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         CommentResponseDTO response = commentService.update(
                 workspaceId,
                 boardId,
@@ -70,7 +66,6 @@ public class CommentController {
                 dto,
                 requesterId
         );
-
         return ResponseEntity.ok(response);
     }
 
@@ -82,10 +77,8 @@ public class CommentController {
             @PathVariable UUID columnId,
             @PathVariable UUID taskId,
             @PathVariable UUID commentId,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         CommentResponseDTO response = commentService.findById(
                 workspaceId,
                 boardId,
@@ -94,7 +87,6 @@ public class CommentController {
                 commentId,
                 requesterId
         );
-
         return ResponseEntity.ok(response);
     }
 
@@ -105,10 +97,8 @@ public class CommentController {
             @PathVariable UUID boardId,
             @PathVariable UUID columnId,
             @PathVariable UUID taskId,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         List<CommentResponseDTO> response = commentService.findAllByTask(
                 workspaceId,
                 boardId,
@@ -116,7 +106,6 @@ public class CommentController {
                 taskId,
                 requesterId
         );
-
         return ResponseEntity.ok(response);
     }
 
@@ -128,10 +117,8 @@ public class CommentController {
             @PathVariable UUID columnId,
             @PathVariable UUID taskId,
             @PathVariable UUID commentId,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         commentService.delete(
                 workspaceId,
                 boardId,
@@ -140,7 +127,6 @@ public class CommentController {
                 commentId,
                 requesterId
         );
-
         return ResponseEntity.noContent().build();
     }
 }

@@ -2,6 +2,7 @@ package com.allan.task.manager.board;
 
 import com.allan.task.manager.board.dto.BoardMemberCreateDTO;
 import com.allan.task.manager.board.dto.BoardMemberResponseDTO;
+import com.allan.task.manager.config.annotation.CurrentUserId;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,10 +30,8 @@ public class BoardMemberController {
     public ResponseEntity<List<BoardMemberResponseDTO>> findMembers(
             @PathVariable UUID workspaceId,
             @PathVariable UUID boardId,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         return ResponseEntity.ok(
                 boardMemberService.findMembers(workspaceId, boardId, requesterId)
         );
@@ -44,17 +43,14 @@ public class BoardMemberController {
             @PathVariable UUID workspaceId,
             @PathVariable UUID boardId,
             @RequestBody @Valid BoardMemberCreateDTO dto,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         BoardMemberResponseDTO response = boardMemberService.addMember(
                 workspaceId,
                 boardId,
                 dto.userId(),
                 requesterId
         );
-
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -64,12 +60,9 @@ public class BoardMemberController {
             @PathVariable UUID workspaceId,
             @PathVariable UUID boardId,
             @PathVariable UUID userId,
-            @AuthenticationPrincipal Jwt jwt
+            @CurrentUserId UUID requesterId
     ) {
-        UUID requesterId = UUID.fromString(jwt.getClaimAsString("userId"));
-
         boardMemberService.removeMember(workspaceId, boardId, userId, requesterId);
-
         return ResponseEntity.noContent().build();
     }
 }
