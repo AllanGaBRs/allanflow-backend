@@ -43,6 +43,14 @@ public class RateLimitRuleResolver {
             );
         }
 
+        if ("POST".equals(method) && "/ai/chat".equals(path)) {
+            return new RateLimitRule(
+                    "chat",
+                    10,
+                    Duration.ofMinutes(1)
+            );
+        }
+
         return null;
     }
 }
