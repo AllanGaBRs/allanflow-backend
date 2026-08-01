@@ -1,0 +1,59 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: allanflow-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+
+    volumes:
+      - allanflow_postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+    networks:
+      - allanflow_internal
+
+  backend:
+    build: .
+    container_name: allanflow-backend
+    restart: unless-stopped
+    stop_grace_period: 30s
+
+    env_file:
+      - .env
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    networks:
+      - proxy
+      - allanflow_internal
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.allanflow-backend.rule=Host(`api.allandev.tech`)"
+      - "traefik.http.routers.allanflow-backend.entrypoints=websecure"
+      - "traefik.http.routers.allanflow-backend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.allanflow-backend.loadbalancer.server.port=8080"
+
+volumes:
+  allanflow_postgres_data:
+
+networks:
+  proxy:
+    external: true
+
+  allanflow_internal:
+    name: allanflow_internal
+    driver: bridge
