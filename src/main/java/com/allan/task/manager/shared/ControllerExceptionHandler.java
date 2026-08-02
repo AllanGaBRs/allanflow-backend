@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -203,6 +204,23 @@ public class ControllerExceptionHandler {
         );
 
         return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<CustomError> methodNotAllowed(
+            HttpRequestMethodNotSupportedException e,
+            HttpServletRequest request
+    ) {
+        HttpStatus status = HttpStatus.METHOD_NOT_ALLOWED;
+
+        CustomError err = new CustomError(
+                Instant.now(),
+                status.value(),
+                "Method not allowed",
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(status).body(err);
     }
 
     @ExceptionHandler(Exception.class)
