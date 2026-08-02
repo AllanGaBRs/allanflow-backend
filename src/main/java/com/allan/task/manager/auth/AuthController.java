@@ -28,14 +28,17 @@ public class AuthController {
     private final PasswordResetService passwordResetService;
     private final AuthService authService;
     private final boolean cookieSecure;
+    private final String cookieDomain;
 
 
     public AuthController(PasswordResetService passwordResetService,
                           AuthService authService,
-                          @Value("${security.cookie.secure:false}") boolean cookieSecure) {
+                          @Value("${security.cookie.secure:false}") boolean cookieSecure,
+                          @Value("${security.cookie.domain}") String cookieDomain) {
         this.passwordResetService = passwordResetService;
         this.authService = authService;
         this.cookieSecure = cookieSecure;
+        this.cookieDomain = cookieDomain;
     }
 
     @PostMapping("/login")
@@ -50,6 +53,7 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(cookieSecure)
                 .sameSite("Lax")
+                .domain(cookieDomain)
                 .path("/")
                 .maxAge(result.expiresIn())
                 .build();
