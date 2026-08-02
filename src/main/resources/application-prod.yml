@@ -16,3 +16,6 @@ spring:
 security:
   rate-limit:
     enabled: true
+
+server:
+  forward-headers-strategy: framework
