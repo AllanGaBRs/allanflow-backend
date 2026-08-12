@@ -12,6 +12,8 @@ public interface WorkspaceRepository extends JpaRepository<WorkspaceModel, UUID>
 
     Optional<WorkspaceModel> findByIdAndIsActiveTrue(UUID id);
 
+    //TODO: Necessário verificar casos de slug em workspaces inativos
     boolean existsBySlugAndIsActiveTrue(String slug);
 
+    //boolean existsBySlug(String slug);
 }
