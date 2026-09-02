@@ -96,6 +96,27 @@ public class DocumentService {
                 .toList();
     }
 
+    @Transactional
+    public void delete(
+            UUID workspaceId,
+            UUID boardId,
+            UUID documentId,
+            UUID requesterId
+    ){
+        boardPermissionService.requireBoardAccess(workspaceId, boardId, requesterId);
+        boardLookupService.findInWorkspace(workspaceId, boardId);
+
+        DocumentModel document = documentLookupService.findInBoard(workspaceId, boardId, documentId);
+
+        if (documentRepository.existsByParentId(documentId)) {
+            throw new InvalidDocumentOperationException(
+                    "Cannot delete a folder with children"
+            );
+        }
+
+        documentRepository.delete(document);
+    }
+
     private DocumentModel resolveParent(
             UUID workspaceId,
             UUID boardId,

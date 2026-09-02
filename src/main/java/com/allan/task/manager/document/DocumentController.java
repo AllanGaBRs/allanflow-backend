@@ -56,4 +56,22 @@ public class DocumentController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PreAuthorize("hasAuthority('ROLE_USER')")
+    @DeleteMapping("/{documentId}")
+    public ResponseEntity<Void> delete(
+            @PathVariable UUID workspaceId,
+            @PathVariable UUID boardId,
+            @PathVariable UUID documentId,
+            @CurrentUserId UUID requesterId
+    ) {
+        documentService.delete(
+                workspaceId,
+                boardId,
+                documentId,
+                requesterId
+        );
+
+        return ResponseEntity.noContent().build();
+    }
 }
