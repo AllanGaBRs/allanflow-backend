@@ -6,6 +6,7 @@ import com.allan.task.manager.board.BoardPermissionService;
 import com.allan.task.manager.document.dto.DocumentCreateDTO;
 import com.allan.task.manager.document.dto.DocumentResponseDTO;
 import com.allan.task.manager.document.dto.DocumentTreeDTO;
+import com.allan.task.manager.document.dto.DocumentUpdateDTO;
 import com.allan.task.manager.document.exception.InvalidDocumentOperationException;
 import com.allan.task.manager.document.mapper.DocumentMapper;
 import com.allan.task.manager.workspace.WorkspaceLookupService;
@@ -94,6 +95,53 @@ public class DocumentService {
                 .filter(document -> document.getParent() == null)
                 .map(document -> toTree(document, documentsByParentId))
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public DocumentResponseDTO findById(
+            UUID workspaceId,
+            UUID boardId,
+            UUID documentId,
+            UUID requesterId
+    ){
+        boardPermissionService.requireBoardAccess(workspaceId, boardId, requesterId);
+        boardLookupService.findInWorkspace(workspaceId, boardId);
+
+        DocumentModel document = documentLookupService.findInBoard(
+                workspaceId,
+                boardId,
+                documentId
+        );
+
+        return DocumentMapper.toResponse(document);
+    }
+
+    @Transactional
+    public DocumentResponseDTO update(
+            UUID workspaceId,
+            UUID boardId,
+            UUID documentId,
+            DocumentUpdateDTO dto,
+            UUID requesterId
+    ) {
+        boardPermissionService.requireBoardAccess(workspaceId, boardId, requesterId);
+        boardLookupService.findInWorkspace(workspaceId, boardId);
+
+        DocumentModel document = documentLookupService.findInBoard(
+                workspaceId,
+                boardId,
+                documentId
+        );
+
+        document.setTitle(dto.title().trim());
+
+        if (document.getType() == DocumentModel.Type.FILE) {
+            document.setContent(dto.content());
+        } else {
+            document.setContent(null);
+        }
+
+        return DocumentMapper.toResponse(documentRepository.save(document));
     }
 
     @Transactional

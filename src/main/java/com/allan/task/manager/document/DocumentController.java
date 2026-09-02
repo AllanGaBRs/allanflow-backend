@@ -4,6 +4,7 @@ import com.allan.task.manager.config.annotation.CurrentUserId;
 import com.allan.task.manager.document.dto.DocumentCreateDTO;
 import com.allan.task.manager.document.dto.DocumentResponseDTO;
 import com.allan.task.manager.document.dto.DocumentTreeDTO;
+import com.allan.task.manager.document.dto.DocumentUpdateDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,6 +52,44 @@ public class DocumentController {
         List<DocumentTreeDTO> response = documentService.findTree(
                 workspaceId,
                 boardId,
+                requesterId
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasAuthority('ROLE_USER')")
+    @GetMapping("/{documentId}")
+    public ResponseEntity<DocumentResponseDTO> findById(
+            @PathVariable UUID workspaceId,
+            @PathVariable UUID boardId,
+            @PathVariable UUID documentId,
+            @CurrentUserId UUID requesterId
+    ) {
+        DocumentResponseDTO response = documentService.findById(
+                workspaceId,
+                boardId,
+                documentId,
+                requesterId
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasAuthority('ROLE_USER')")
+    @PutMapping("/{documentId}")
+    public ResponseEntity<DocumentResponseDTO> update(
+            @PathVariable UUID workspaceId,
+            @PathVariable UUID boardId,
+            @PathVariable UUID documentId,
+            @RequestBody @Valid DocumentUpdateDTO dto,
+            @CurrentUserId UUID requesterId
+    ) {
+        DocumentResponseDTO response = documentService.update(
+                workspaceId,
+                boardId,
+                documentId,
+                dto,
                 requesterId
         );
 
