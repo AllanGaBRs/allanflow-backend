@@ -3,12 +3,14 @@ package com.allan.task.manager.document;
 import com.allan.task.manager.config.annotation.CurrentUserId;
 import com.allan.task.manager.document.dto.DocumentCreateDTO;
 import com.allan.task.manager.document.dto.DocumentResponseDTO;
+import com.allan.task.manager.document.dto.DocumentTreeDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -37,5 +39,21 @@ public class DocumentController {
         );
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PreAuthorize("hasAuthority('ROLE_USER')")
+    @GetMapping("/tree")
+    public ResponseEntity<List<DocumentTreeDTO>> findTree(
+            @PathVariable UUID workspaceId,
+            @PathVariable UUID boardId,
+            @CurrentUserId UUID requesterId
+    ) {
+        List<DocumentTreeDTO> response = documentService.findTree(
+                workspaceId,
+                boardId,
+                requesterId
+        );
+
+        return ResponseEntity.ok(response);
     }
 }

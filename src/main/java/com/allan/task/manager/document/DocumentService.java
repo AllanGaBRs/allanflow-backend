@@ -5,14 +5,18 @@ import com.allan.task.manager.board.BoardModel;
 import com.allan.task.manager.board.BoardPermissionService;
 import com.allan.task.manager.document.dto.DocumentCreateDTO;
 import com.allan.task.manager.document.dto.DocumentResponseDTO;
+import com.allan.task.manager.document.dto.DocumentTreeDTO;
 import com.allan.task.manager.document.exception.InvalidDocumentOperationException;
 import com.allan.task.manager.document.mapper.DocumentMapper;
 import com.allan.task.manager.workspace.WorkspaceLookupService;
 import com.allan.task.manager.workspace.WorkspaceModel;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class DocumentService {
@@ -67,6 +71,31 @@ public class DocumentService {
         return DocumentMapper.toResponse(documentRepository.save(document));
     }
 
+    @Transactional(readOnly = true)
+    public List<DocumentTreeDTO> findTree(
+            UUID workspaceId,
+            UUID boardId,
+            UUID requesterId
+    ) {
+        boardPermissionService.requireBoardAccess(workspaceId, boardId, requesterId);
+        boardLookupService.findInWorkspace(workspaceId, boardId);
+
+        List<DocumentModel> documents =
+                documentRepository.findByWorkspaceIdAndBoardIdOrderByTitleAsc(
+                        workspaceId,
+                        boardId
+                );
+
+        Map<UUID, List<DocumentModel>> documentsByParentId = documents.stream()
+                .filter(document -> document.getParent() != null)
+                .collect(Collectors.groupingBy(document -> document.getParent().getId()));
+
+        return documents.stream()
+                .filter(document -> document.getParent() == null)
+                .map(document -> toTree(document, documentsByParentId))
+                .toList();
+    }
+
     private DocumentModel resolveParent(
             UUID workspaceId,
             UUID boardId,
@@ -87,5 +116,18 @@ public class DocumentService {
         }
 
         return parent;
+    }
+
+    private DocumentTreeDTO toTree(
+            DocumentModel document,
+            Map<UUID, List<DocumentModel>> documentsByParentId
+    ) {
+        List<DocumentTreeDTO> children = documentsByParentId
+                .getOrDefault(document.getId(), List.of())
+                .stream()
+                .map(child -> toTree(child, documentsByParentId))
+                .toList();
+
+        return DocumentMapper.toTree(document, children);
     }
 }
