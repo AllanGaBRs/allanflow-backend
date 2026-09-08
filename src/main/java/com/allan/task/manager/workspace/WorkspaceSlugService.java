@@ -20,7 +20,7 @@ public class WorkspaceSlugService {
         String slug = baseSlug;
         int counter = 1;
 
-        while (workspaceRepository.existsBySlugAndIsActiveTrue(slug)) {
+        while (workspaceRepository.existsBySlug(slug)) {
             slug = baseSlug + "-" + counter;
             counter++;
         }
