@@ -1,10 +1,7 @@
 package com.allan.task.manager.document;
 
 import com.allan.task.manager.config.annotation.CurrentUserId;
-import com.allan.task.manager.document.dto.DocumentCreateDTO;
-import com.allan.task.manager.document.dto.DocumentResponseDTO;
-import com.allan.task.manager.document.dto.DocumentTreeDTO;
-import com.allan.task.manager.document.dto.DocumentUpdateDTO;
+import com.allan.task.manager.document.dto.*;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -112,5 +109,25 @@ public class DocumentController {
         );
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasAuthority('ROLE_USER')")
+    @PatchMapping("/{documentId}/move")
+    public ResponseEntity<DocumentResponseDTO> move(
+            @PathVariable UUID workspaceId,
+            @PathVariable UUID boardId,
+            @PathVariable UUID documentId,
+            @RequestBody DocumentMoveDTO dto,
+            @CurrentUserId UUID requesterId
+    ){
+        DocumentResponseDTO response = documentService.move(
+                workspaceId,
+                boardId,
+                documentId,
+                dto,
+                requesterId
+        );
+
+        return ResponseEntity.ok(response);
     }
 }

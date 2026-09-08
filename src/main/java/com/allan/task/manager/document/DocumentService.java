@@ -3,10 +3,7 @@ package com.allan.task.manager.document;
 import com.allan.task.manager.board.BoardLookupService;
 import com.allan.task.manager.board.BoardModel;
 import com.allan.task.manager.board.BoardPermissionService;
-import com.allan.task.manager.document.dto.DocumentCreateDTO;
-import com.allan.task.manager.document.dto.DocumentResponseDTO;
-import com.allan.task.manager.document.dto.DocumentTreeDTO;
-import com.allan.task.manager.document.dto.DocumentUpdateDTO;
+import com.allan.task.manager.document.dto.*;
 import com.allan.task.manager.document.exception.InvalidDocumentOperationException;
 import com.allan.task.manager.document.mapper.DocumentMapper;
 import com.allan.task.manager.workspace.WorkspaceLookupService;
@@ -165,6 +162,43 @@ public class DocumentService {
         documentRepository.delete(document);
     }
 
+    @Transactional
+    public DocumentResponseDTO move(
+            UUID workspaceId,
+            UUID boardId,
+            UUID documentId,
+            DocumentMoveDTO dto,
+            UUID requesterId
+    ){
+        boardPermissionService.requireBoardAccess(workspaceId, boardId, requesterId);
+        boardLookupService.findInWorkspace(workspaceId, boardId);
+
+        DocumentModel document = documentLookupService.findInBoard(
+                workspaceId,
+                boardId,
+                documentId
+        );
+
+        DocumentModel parent = resolveParent(
+                workspaceId,
+                boardId,
+                dto.parentId()
+        );
+
+        if(parent != null && document.getId().equals(parent.getId())){
+            throw new InvalidDocumentOperationException("A document cannot be moved into itself");
+        }
+
+        if (parent != null && isDescendant(parent, document)) {
+            throw new InvalidDocumentOperationException(
+                    "A folder cannot be moved into one of its descendants"
+            );
+        }
+        document.setParent(parent);
+
+        return DocumentMapper.toResponse(documentRepository.save(document));
+    }
+
     private DocumentModel resolveParent(
             UUID workspaceId,
             UUID boardId,
@@ -198,5 +232,19 @@ public class DocumentService {
                 .toList();
 
         return DocumentMapper.toTree(document, children);
+    }
+
+    private boolean isDescendant(DocumentModel possibleDescendant, DocumentModel document) {
+        DocumentModel currentParent = possibleDescendant.getParent();
+
+        while(currentParent != null){
+            if(currentParent.getId().equals(document.getId())){
+                return true;
+            }
+
+            currentParent = currentParent.getParent();
+        }
+
+        return false;
     }
 }
